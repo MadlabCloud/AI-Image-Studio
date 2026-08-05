@@ -51,13 +51,13 @@ def test_unimplemented_category_stays_in_router():
     decision["category"]["type"] = "portrait"
     decision["category"]["subtype"] = "cv"
     decision["background"] = {
-        "relevance": "important",
+        "relevance": "preserve",
         "policy": "preserve",
-        "original_type": "real_environment",
+        "original_type": "environment",
         "target_mode": "preserve",
         "target_value": None,
         "profile_id": None,
-        "shadow": "preserve"
+        "shadow": "preserve-original"
     }
     route = route_decision(decision)
     assert route["primary_skill"] == "image-intake-router"
