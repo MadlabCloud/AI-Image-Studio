@@ -1,0 +1,47 @@
+{
+  "category": "product",
+  "subtype": "fragrance",
+  "destination": "own_web",
+  "device": {
+    "kind": "smartphone",
+    "brand": "Apple",
+    "model": "iPhone 17 Pro",
+    "controls": "partial",
+    "raw_capability": "yes"
+  },
+  "scene": {
+    "location": "indoor",
+    "lighting": "controlled_studio",
+    "light_control": "full",
+    "subject_motion": "static",
+    "challenges": [
+      "reflective",
+      "transparent",
+      "glossy"
+    ]
+  },
+  "subject": {
+    "scale": "small",
+    "materials": [
+      "glass",
+      "metal"
+    ],
+    "people_count": 0
+  },
+  "resources": {
+    "tripod": true,
+    "flash": false,
+    "continuous_lights": 2,
+    "reflector": true,
+    "diffuser": true,
+    "assistant": false
+  },
+  "guidance": {
+    "experience": "beginner",
+    "mode": "pre_capture",
+    "include_settings": true,
+    "include_lighting": true,
+    "include_shot_list": true,
+    "include_preflight": true
+  }
+}

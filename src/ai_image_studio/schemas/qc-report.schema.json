@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/qc-report.schema.json",
+  "title": "QCReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "job_id",
+    "overall",
+    "gates"
+  ],
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "overall": {
+      "enum": [
+        "PASS",
+        "REVIEW",
+        "FAIL"
+      ]
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "PASS",
+              "REVIEW",
+              "FAIL"
+            ]
+          },
+          "details": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

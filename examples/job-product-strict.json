@@ -1,0 +1,50 @@
+{
+  "job_id": "img-2026-0001",
+  "category": "product",
+  "fidelity": "strict",
+  "status": "SPEC_LOCKED",
+  "source": {
+    "path": "C:/replace/me/IMG_0001.JPG",
+    "immutable": true
+  },
+  "product": {
+    "name": "Sample stool",
+    "sku": "SKU-001",
+    "color": "green",
+    "materials": ["velvet", "gold metal"],
+    "expected_parts": {"seat": 1, "backrest": 1, "legs": 4}
+  },
+  "background": {
+    "original": "fabric",
+    "target": "#FFFFFF",
+    "shadow": "contact-soft"
+  },
+  "allowed_operations": ["inspect", "raw_development", "white_balance", "exposure", "background_removal", "white_background", "resize", "export"],
+  "forbidden_operations": ["full_image_generation", "geometry_change", "product_recolor", "add_product_parts", "remove_product_parts"],
+  "output": {
+    "width": 1000,
+    "height": 1000,
+    "format": "webp",
+    "quality": 86,
+    "color_space": "sRGB",
+    "remove_metadata": true
+  },
+  "confirmed": true,
+  "notes": [],
+  "decision": {
+    "category": {"type": "product", "subtype": "furniture", "source": "confirmed", "confidence": 1.0},
+    "destination": {"primary": "own_web", "platform": "Example Store", "profile_id": "example-store-web", "requirements_known": true},
+    "capture": {
+      "device": {"kind": "camera", "brand": null, "model": null, "metadata_checked": false, "configuration_known": false},
+      "source_format": "raw+jpeg",
+      "scenario": {"location": "indoor", "lighting": "continuous_artificial", "subject_motion": "static", "challenges": ["fabric_texture", "fine_structure", "reflective"]},
+      "guidance_requested": false
+    },
+    "fidelity": "strict",
+    "background": {"relevance": "critical", "policy": "product_catalog", "original_type": "fabric", "target_mode": "solid", "target_value": "#FFFFFF", "profile_id": "example-store-web", "shadow": "contact-soft"},
+    "outputs": {
+      "requested": ["catalog", "web", "master", "zip"],
+      "environment": {"requested": false, "context_source": "none", "description": null, "reference_paths": [], "recommendations_requested": false}
+    }
+  }
+}

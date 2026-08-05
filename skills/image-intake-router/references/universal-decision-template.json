@@ -1,0 +1,16 @@
+{
+  "category": {"type": "product", "subtype": "furniture", "source": "confirmed", "confidence": 1.0},
+  "destination": {"primary": "own_web", "platform": "Example Store", "profile_id": "example-store-web", "requirements_known": true},
+  "capture": {
+    "device": {"kind": "camera", "brand": null, "model": null, "metadata_checked": false, "configuration_known": false},
+    "source_format": "raw+jpeg",
+    "scenario": {"location": "indoor", "lighting": "continuous_artificial", "subject_motion": "static", "challenges": ["fabric_texture", "fine_structure", "reflective"]},
+    "guidance_requested": false
+  },
+  "fidelity": "strict",
+  "background": {"relevance": "critical", "policy": "product_catalog", "original_type": "fabric", "target_mode": "solid", "target_value": "#FFFFFF", "profile_id": "example-store-web", "shadow": "contact-soft"},
+  "outputs": {
+    "requested": ["catalog", "web", "master", "zip"],
+    "environment": {"requested": false, "context_source": "none", "description": null, "reference_paths": [], "recommendations_requested": false}
+  }
+}

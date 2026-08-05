@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-image-studio"
+version = "0.5.0"
+description = "Portable Agent Skills, deterministic image workflows, quality gates and MCP tooling"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+
+keywords = ["agent-skills", "mcp", "image-processing", "photography", "claude", "codex", "chatgpt"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Multimedia :: Graphics",
+]
+
+dependencies = [
+  "Pillow>=10.0",
+  "numpy>=1.26",
+  "jsonschema>=4.21"
+]
+
+[project.urls]
+Homepage = "https://github.com/MadlabCloud/AI-Image-Studio"
+Repository = "https://github.com/MadlabCloud/AI-Image-Studio"
+Issues = "https://github.com/MadlabCloud/AI-Image-Studio/issues"
+Changelog = "https://github.com/MadlabCloud/AI-Image-Studio/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "tomli>=2.0; python_version < '3.11'"
+]
+mcp = ["mcp>=1.0"]
+
+[project.scripts]
+ai-image-studio = "ai_image_studio.cli:main"
+ai-image-studio-mcp = "ai_image_studio.mcp_server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.setuptools.package-data]
+ai_image_studio = ["schemas/*.json", "data/*.json"]

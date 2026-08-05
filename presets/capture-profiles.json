@@ -1,0 +1,400 @@
+{
+  "schema_version": "1.0",
+  "profiles": [
+    {
+      "id": "product-furniture-studio",
+      "category": "product",
+      "subtypes": [
+        "furniture",
+        "chair",
+        "stool",
+        "table"
+      ],
+      "camera": {
+        "iso": "100–400",
+        "aperture": "f/5.6–f/11",
+        "shutter": "Ajustar según medición; el trípode permite velocidades lentas",
+        "focal_length": "50–100 mm equivalentes",
+        "focus": "AF de punto único o enfoque manual; comprobar estructura delantera y trasera",
+        "format": "RAW+JPEG cuando esté disponible"
+      },
+      "smartphone": {
+        "lens": "Cámara principal 1×; alejarse en lugar de usar ultra gran angular",
+        "format": "RAW/ProRAW/Expert RAW solo cuando esté verificado; en otro caso HEIF/JPEG de máxima calidad",
+        "stability": "Trípode y temporizador",
+        "exposure": "Bloquear AE/AF y evitar altas luces recortadas"
+      },
+      "lighting": [
+        "Usar fuentes grandes y difusas aproximadamente a 45°",
+        "Separar el producto del fondo",
+        "Añadir relleno o reflector para revelar tejido oscuro y patas finas"
+      ],
+      "composition": [
+        "Mantener la cámara nivelada",
+        "Dejar visibles todos los pies y soportes",
+        "Mantener altura y distancia constantes entre variantes"
+      ],
+      "shot_list": [
+        "frontal",
+        "tres cuartos frontal",
+        "perfil",
+        "trasera",
+        "tres cuartos trasera",
+        "detalles constructivos",
+        "detalle de material"
+      ],
+      "preflight": [
+        "Limpiar producto y suelo",
+        "Comprobar cada tornillo, remate y soporte",
+        "Fotografiar una tarjeta gris o referencia de color"
+      ],
+      "warnings": [
+        "Evitar deformación por gran angular",
+        "No sobreexponer reflejos dorados o cromados"
+      ]
+    },
+    {
+      "id": "product-footwear-studio",
+      "category": "product",
+      "subtypes": [
+        "footwear",
+        "shoes",
+        "sneakers",
+        "zapatillas"
+      ],
+      "camera": {
+        "iso": "100–400",
+        "aperture": "f/8–f/11",
+        "shutter": "Ajustar según medición; usar trípode",
+        "focal_length": "70–120 mm equivalentes",
+        "focus": "Enfocar en el plano del logotipo o cordones; comprobar talón y puntera",
+        "format": "RAW+JPEG cuando esté disponible"
+      },
+      "smartphone": {
+        "lens": "Cámara principal o tele óptico; evitar ultra gran angular",
+        "format": "Captura de máxima calidad",
+        "stability": "Trípode o soporte rígido",
+        "exposure": "Bloquear exposición y preservar mediasuelas blancas"
+      },
+      "lighting": [
+        "Usar una luz principal grande y suave con relleno controlado",
+        "Usar banderas para modelar el cuero brillante",
+        "Mantener simétrica la iluminación del par"
+      ],
+      "composition": [
+        "Mantener el mismo ángulo para todos los colores",
+        "Alinear puntos de referencia de suela y talón"
+      ],
+      "shot_list": [
+        "lateral principal",
+        "lado interior",
+        "frontal",
+        "trasera",
+        "superior",
+        "suela",
+        "detalles de material"
+      ],
+      "preflight": [
+        "Limpiar suelas y cordones",
+        "Usar soporte interior para conservar la forma",
+        "Comprobar coherencia entre pie izquierdo y derecho"
+      ],
+      "warnings": [
+        "No aplastar la textura del ante",
+        "Evitar dominantes de color en mediasuelas blancas"
+      ]
+    },
+    {
+      "id": "product-fragrance-glass",
+      "category": "product",
+      "subtypes": [
+        "fragrance",
+        "perfume",
+        "glass",
+        "cosmetics"
+      ],
+      "camera": {
+        "iso": "100",
+        "aperture": "f/8–f/16 según profundidad necesaria",
+        "shutter": "Trípode; ajustar según medición",
+        "focal_length": "85–120 mm equivalentes",
+        "focus": "Enfoque manual en etiqueta y borde frontal",
+        "format": "RAW+JPEG"
+      },
+      "smartphone": {
+        "lens": "Cámara principal o tele óptico",
+        "format": "RAW solo cuando el soporte del modelo exacto esté verificado",
+        "stability": "Trípode y temporizador",
+        "exposure": "Reducir exposición para preservar reflejos especulares"
+      },
+      "lighting": [
+        "Contraluz o luz lateral a través de difusión",
+        "Usar cartulinas negras y blancas para dibujar los bordes del frasco",
+        "Un polarizador puede ayudar con ciertos reflejos, pero puede alterar el brillo previsto"
+      ],
+      "composition": [
+        "Mantener verticales exactas",
+        "Comprobar alineación de etiqueta y nivel del líquido"
+      ],
+      "shot_list": [
+        "frontal principal",
+        "tres cuartos",
+        "detalle del tapón",
+        "detalle de etiqueta",
+        "embalaje",
+        "transparencia o detalle"
+      ],
+      "preflight": [
+        "Eliminar huellas",
+        "Nivelar frasco y etiqueta",
+        "Comprobar burbujas, polvo y alineación del tapón"
+      ],
+      "warnings": [
+        "No usar flash directo sobre la cámara",
+        "No eliminar todos los reflejos; el cristal necesita reflejos de borde controlados"
+      ]
+    },
+    {
+      "id": "portrait-cv-neutral",
+      "category": "portrait",
+      "subtypes": [
+        "cv",
+        "linkedin",
+        "professional"
+      ],
+      "camera": {
+        "iso": "100–800",
+        "aperture": "f/2.8–f/5.6",
+        "shutter": "Al menos 1/160 s; más rápido si la persona se mueve",
+        "focal_length": "70–135 mm equivalentes",
+        "focus": "AF al ojo o punto único sobre el ojo más cercano",
+        "format": "RAW+JPEG"
+      },
+      "smartphone": {
+        "lens": "Tele óptico 2×/3× cuando exista; en otro caso cámara principal desde más distancia",
+        "format": "Captura de máxima calidad",
+        "stability": "Postura estable o trípode",
+        "exposure": "Bloquear sobre el rostro y proteger altas luces de la piel"
+      },
+      "lighting": [
+        "Luz principal grande y suave por encima de los ojos",
+        "Relleno suave",
+        "Separar a la persona del fondo"
+      ],
+      "composition": [
+        "Cámara a la altura de los ojos",
+        "Encuadre de cabeza y hombros con margen",
+        "Postura neutra y fondo limpio"
+      ],
+      "shot_list": [
+        "expresión neutra",
+        "sonrisa cercana",
+        "ligero ángulo izquierdo y derecho"
+      ],
+      "preflight": [
+        "Comprobar ropa, cabello y reflejos en gafas",
+        "Confirmar sector y nivel de formalidad"
+      ],
+      "warnings": [
+        "No usar ultra gran angular cerca del rostro",
+        "Evitar temperaturas de color mezcladas"
+      ]
+    },
+    {
+      "id": "wedding-day",
+      "category": "event",
+      "subtypes": [
+        "wedding",
+        "boda",
+        "ceremony"
+      ],
+      "camera": {
+        "iso": "100–800",
+        "aperture": "f/2–f/5.6 según profundidad del grupo",
+        "shutter": "1/500 s o más para movimiento; mínimo 1/250 s en momentos tranquilos",
+        "focal_length": "24–70 mm y 70–200 mm equivalentes",
+        "focus": "AF continuo o detección de ojos",
+        "format": "RAW"
+      },
+      "smartphone": {
+        "lens": "Cámara principal; tele óptico para retratos",
+        "format": "Máxima calidad; RAW solo cuando el flujo lo soporte",
+        "stability": "Estabilizarse y usar ráfaga en momentos clave",
+        "exposure": "Proteger altas luces del vestido y los rostros"
+      },
+      "lighting": [
+        "En sol directo, mover a las personas a sombra abierta cuando sea posible",
+        "Usar flash de relleno o reflector con cuidado",
+        "Vigilar contraluz y rango dinámico"
+      ],
+      "composition": [
+        "Priorizar momentos sobre geometría perfecta",
+        "Mantener fondos limpios sin perder contexto"
+      ],
+      "shot_list": [
+        "lugar",
+        "detalles",
+        "preparativos",
+        "entrada",
+        "momentos de ceremonia",
+        "grupos",
+        "retratos de pareja",
+        "celebración"
+      ],
+      "preflight": [
+        "Sincronizar relojes de cámaras",
+        "Preparar cámara, tarjetas y baterías de respaldo",
+        "Confirmar restricciones de flash"
+      ],
+      "warnings": [
+        "No subexponer excesivamente los rostros",
+        "Evitar quemar altas luces del vestido blanco"
+      ]
+    },
+    {
+      "id": "wedding-night",
+      "category": "event",
+      "subtypes": [
+        "wedding",
+        "boda",
+        "celebración",
+        "party"
+      ],
+      "camera": {
+        "iso": "800–6400 según necesidad",
+        "aperture": "f/1.4–f/2.8",
+        "shutter": "1/200 s o más para personas; 1/320–1/500 s para baile",
+        "focal_length": "24–70 mm y objetivo fijo luminoso",
+        "focus": "AF continuo con ayuda cuando esté permitido",
+        "format": "RAW"
+      },
+      "smartphone": {
+        "lens": "Cámara principal; evitar zoom digital",
+        "format": "Highest quality",
+        "stability": "Usar modo Noche solo en escenas estáticas, no para baile",
+        "exposure": "Bloquear exposición y evitar que las luces intensas dominen"
+      },
+      "lighting": [
+        "Rebotar flash cuando techo y normas lo permitan",
+        "Equilibrar luz ambiente y flash",
+        "Usar flash fuera de cámara en pista cuando sea posible"
+      ],
+      "composition": [
+        "Incluir luces ambientales de forma intencionada",
+        "Comprobar desenfoque de movimiento al 100 %"
+      ],
+      "shot_list": [
+        "exterior nocturno",
+        "detalles de celebración",
+        "discursos",
+        "primer baile",
+        "pista de baile",
+        "reacciones de invitados"
+      ],
+      "preflight": [
+        "Probar tiempo de reciclaje del flash",
+        "Llevar baterías de repuesto",
+        "Activar anti-parpadeo si está disponible"
+      ],
+      "warnings": [
+        "El modo Noche crea imágenes fantasma en sujetos en movimiento",
+        "La luz mixta puede distorsionar tonos de piel"
+      ]
+    },
+    {
+      "id": "travel-landscape",
+      "category": "travel",
+      "subtypes": [
+        "landscape",
+        "travel",
+        "cityscape"
+      ],
+      "camera": {
+        "iso": "ISO base cuando sea posible",
+        "aperture": "f/8–f/11",
+        "shutter": "Según movimiento y uso de trípode",
+        "focal_length": "16–70 mm equivalentes",
+        "focus": "AF único o enfoque hiperfocal/manual según proceda",
+        "format": "RAW+JPEG"
+      },
+      "smartphone": {
+        "lens": "Cámara principal; ultra gran angular solo cuando la deformación sea aceptable",
+        "format": "Highest quality",
+        "stability": "Trípode para hora azul y noche",
+        "exposure": "Usar compensación de exposición y horquillado en escenas de alto rango dinámico"
+      },
+      "lighting": [
+        "Preferir hora dorada o azul cuando sea posible",
+        "Usar clima y dirección de luz como elementos compositivos"
+      ],
+      "composition": [
+        "Mantener horizontes nivelados",
+        "Usar primer plano, plano medio y fondo"
+      ],
+      "shot_list": [
+        "gran plano general",
+        "plano medio contextual",
+        "detalles",
+        "composición vertical",
+        "hora azul o noche"
+      ],
+      "preflight": [
+        "Limpiar objetivo",
+        "Comprobar clima y acceso",
+        "Registrar ubicación solo respetando consentimiento y privacidad"
+      ],
+      "warnings": [
+        "Evitar halos HDR excesivos",
+        "Corregir perspectiva arquitectónica de forma conservadora"
+      ]
+    },
+    {
+      "id": "real-estate-interior",
+      "category": "real_estate",
+      "subtypes": [
+        "interior",
+        "property",
+        "inmobiliaria"
+      ],
+      "camera": {
+        "iso": "100–400",
+        "aperture": "f/7.1–f/11",
+        "shutter": "Trípode; horquillado cuando sea necesario",
+        "focal_length": "16–24 mm equivalentes en formato completo, usados con moderación",
+        "focus": "AF único o manual; comprobar profundidad de la estancia",
+        "format": "RAW"
+      },
+      "smartphone": {
+        "lens": "Cámara principal o ultra gran angular moderado; evitar deformación extrema en bordes",
+        "format": "Highest quality",
+        "stability": "Trípode",
+        "exposure": "Horquillar ventanas e interior cuando sea posible"
+      },
+      "lighting": [
+        "Encender luces prácticas coherentes solo si se pueden controlar las temperaturas de color",
+        "Usar luz de ventana y relleno controlado"
+      ],
+      "composition": [
+        "Mantener verticales rectas",
+        "Fotografiar desde una altura constante",
+        "No exagerar el tamaño de la estancia"
+      ],
+      "shot_list": [
+        "esquinas de la estancia",
+        "vista frontal principal",
+        "conexiones entre estancias",
+        "detalles",
+        "exterior"
+      ],
+      "preflight": [
+        "Ordenar sin ocultar defectos",
+        "Abrir persianas de forma coherente",
+        "Comprobar espejos y reflejos"
+      ],
+      "warnings": [
+        "No estirar las estancias",
+        "No eliminar defectos estructurales ni falsear vistas"
+      ]
+    }
+  ]
+}

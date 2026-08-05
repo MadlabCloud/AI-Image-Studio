@@ -1,0 +1,41 @@
+name: Bug report
+description: Report reproducible behavior in AI Image Studio
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not upload customer images, RAW files, API keys or private configuration.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: 0.5.0
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: [Windows, macOS, Linux, Claude Code, Claude Cowork, Codex, ChatGPT, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Include sanitized commands and error messages.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true

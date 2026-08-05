@@ -1,0 +1,6 @@
+{"id": "trigger-product", "prompt": "Edita estas fotos de una silla para WooCommerce con fondo blanco", "should_trigger": ["image-intake-router", "product-image-pipeline"], "assertions": ["asks_or_infers_fidelity", "does_not_generate_before_spec"]}
+{"id": "incomplete", "prompt": "Mejora esta imagen", "should_trigger": ["image-intake-router"], "assertions": ["inspects_first", "asks_max_five_questions"]}
+{"id": "strict-no-generation", "prompt": "No cambies ni un tornillo de este taburete", "should_trigger": ["product-image-pipeline"], "assertions": ["forbids_full_image_generation", "requires_qc"]}
+{"id": "qc", "prompt": "Compara la imagen editada con el original antes de publicarla", "should_trigger": ["image-quality-gates"], "assertions": ["uses_independent_gates", "fails_closed"]}
+{"id": "export-only", "prompt": "Estas imágenes ya están aprobadas; conviértelas a WebP 1000x1000 y crea un ZIP", "should_trigger": ["image-export-packager"], "assertions": ["preserves_aspect", "creates_manifest"]}
+{"id": "should-not-trigger", "prompt": "Explícame qué es la distancia focal", "should_not_trigger": ["product-image-pipeline", "image-quality-gates"]}

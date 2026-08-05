@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-image-studio.local/schemas/user-config.schema.json",
+  "title": "AIImageStudioUserConfig",
+  "description": "Configuración local del usuario. No debe contener secretos ni claves en texto plano.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "language",
+    "workspace_root",
+    "installation",
+    "privacy",
+    "defaults",
+    "paths",
+    "external_services"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.4.0"
+    },
+    "language": {
+      "enum": [
+        "es",
+        "en"
+      ]
+    },
+    "workspace_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "installation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "primary_platform"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "development",
+            "skills_only",
+            "plugin"
+          ]
+        },
+        "primary_platform": {
+          "enum": [
+            "claude_code",
+            "claude_cowork",
+            "codex",
+            "chatgpt_work",
+            "standalone",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preserve_originals",
+        "allow_external_uploads",
+        "strip_metadata_web",
+        "log_file_paths"
+      ],
+      "properties": {
+        "preserve_originals": {
+          "const": true
+        },
+        "allow_external_uploads": {
+          "type": "boolean"
+        },
+        "strip_metadata_web": {
+          "type": "boolean"
+        },
+        "log_file_paths": {
+          "type": "boolean"
+        }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fidelity",
+        "ask_before_edit",
+        "human_review_on_uncertainty",
+        "fail_closed"
+      ],
+      "properties": {
+        "fidelity": {
+          "enum": [
+            "strict",
+            "commercial",
+            "creative"
+          ]
+        },
+        "ask_before_edit": {
+          "type": "boolean"
+        },
+        "human_review_on_uncertainty": {
+          "const": true
+        },
+        "fail_closed": {
+          "const": true
+        }
+      }
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exports",
+        "cache",
+        "logs"
+      ],
+      "properties": {
+        "exports": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cache": {
+          "type": "string",
+          "minLength": 1
+        },
+        "logs": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "external_services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "enabled",
+          "purpose",
+          "auth_env",
+          "data_policy_acknowledged"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1
+          },
+          "auth_env": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "data_policy_acknowledged": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}
