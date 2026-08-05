@@ -58,7 +58,7 @@ def build_server():
 
     @mcp.tool()
     def image_route_decision(decision: dict) -> dict:
-        """Selecciona el flujo especializado sin asumir fondo blanco ni una cámara concreta."""
+        """Selecciona solo flujos implementados y devuelve estado planned para categorías pendientes."""
         return route_decision(decision)
 
     @mcp.tool()
@@ -79,12 +79,12 @@ def build_server():
 
     @mcp.tool()
     def image_validate_background(image: str, mask: str | None = None, min_channel: int = 250, max_nonwhite_ratio: float = 0.002) -> dict:
-        """Valida que el fondo sea prácticamente blanco puro; usa máscara de producto cuando esté disponible."""
+        """Valida un fondo blanco cuando la especificación del trabajo lo exige; usa máscara si está disponible."""
         return validate_background(_guard(image), _guard(mask) if mask else None, min_channel, max_nonwhite_ratio)
 
     @mcp.tool()
     def image_validate_output(image: str, width: int, height: int, expected_format: str | None = None) -> dict:
-        """Valida dimensiones exactas, formato y ausencia de alpha accidental."""
+        """Valida dimensiones exactas, formato y ausencia de alpha accidental cuando corresponda."""
         return validate_dimensions(_guard(image), width, height, expected_format)
 
     @mcp.tool()
@@ -93,14 +93,14 @@ def build_server():
         return compare_pixels(_guard(reference), _guard(result), _guard(mask) if mask else None)
 
     @mcp.tool()
-    def image_export_webp(source: str, destination: str, width: int = 1000, height: int = 1000, quality: int = 86, fit: str = "contain") -> dict:
-        """Exporta WebP de forma determinista sobre fondo blanco, sin EXIF y sin deformar por defecto."""
-        return export_webp(_guard(source), _guard(destination, output=True), width, height, quality, fit)
+    def image_export_webp(source: str, destination: str, width: int = 1000, height: int = 1000, quality: int = 86, fit: str = "contain", background_mode: str = "preserve", background: str = "#FFFFFF") -> dict:
+        """Exporta WebP sin imponer fondo: background_mode admite preserve, transparent o solid."""
+        return export_webp(_guard(source), _guard(destination, output=True), width, height, quality, fit, background_mode, background)
 
     @mcp.tool()
-    def image_export_png(source: str, destination: str, width: int | None = None, height: int | None = None) -> dict:
-        """Exporta PNG RGB sobre fondo blanco, preservando proporciones."""
-        return export_png(_guard(source), _guard(destination, output=True), width, height)
+    def image_export_png(source: str, destination: str, width: int | None = None, height: int | None = None, background_mode: str = "preserve", background: str = "#FFFFFF") -> dict:
+        """Exporta PNG conservando fondo o transparencia, o aplicando un color sólido explícito."""
+        return export_png(_guard(source), _guard(destination, output=True), width, height, background_mode, background)
 
     @mcp.tool()
     def image_package(source_dir: str, zip_path: str, job_id: str = "unassigned") -> dict:
