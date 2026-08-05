@@ -1,0 +1,47 @@
+name: Bootstrap source tree
+
+on:
+  push:
+    branches:
+      - microphase-0.5.0-github-distribution
+    paths:
+      - ".bootstrap/**"
+      - ".github/workflows/bootstrap-source.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct and verify source archive
+        shell: bash
+        run: |
+          cat .bootstrap/part-*.txt | base64 --decode > /tmp/source.tar.xz
+          echo "5caf87064159510e79624133b6fe339c6d41f74e78bb6ecaeae26109c3398327  /tmp/source.tar.xz" | sha256sum -c -
+
+      - name: Extract source tree
+        shell: bash
+        run: |
+          tar -xJf /tmp/source.tar.xz
+          rm -rf .bootstrap
+          rm -f .github/workflows/bootstrap-source.yml
+
+      - name: Commit prepared source tree
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Prepare AI Image Studio 0.5.0 for GitHub distribution"
+          git push
