@@ -1,0 +1,288 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-image-studio.local/schemas/capture-guide-request.schema.json",
+  "title": "CaptureGuideRequest",
+  "description": "Solicitud estructurada para generar una guía de captura fotográfica sin asumir cámara, móvil ni fondo.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "category",
+    "subtype",
+    "destination",
+    "device",
+    "scene",
+    "subject",
+    "resources",
+    "guidance"
+  ],
+  "properties": {
+    "category": {
+      "enum": [
+        "product",
+        "portrait",
+        "event",
+        "travel",
+        "architecture",
+        "real_estate",
+        "food",
+        "other"
+      ]
+    },
+    "subtype": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "destination": {
+      "enum": [
+        "own_web",
+        "ecommerce_platform",
+        "marketplace",
+        "social_media",
+        "advertising",
+        "print",
+        "cv_linkedin",
+        "personal",
+        "editorial",
+        "real_estate_listing",
+        "delivery_menu",
+        "other",
+        "unknown"
+      ]
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "brand",
+        "model",
+        "controls",
+        "raw_capability"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "camera",
+            "smartphone",
+            "unknown"
+          ]
+        },
+        "brand": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "controls": {
+          "enum": [
+            "manual",
+            "partial",
+            "automatic",
+            "unknown"
+          ]
+        },
+        "raw_capability": {
+          "enum": [
+            "yes",
+            "no",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "scene": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "location",
+        "lighting",
+        "light_control",
+        "subject_motion",
+        "challenges"
+      ],
+      "properties": {
+        "location": {
+          "enum": [
+            "indoor",
+            "outdoor",
+            "mixed",
+            "unknown"
+          ]
+        },
+        "lighting": {
+          "enum": [
+            "controlled_studio",
+            "natural_daylight",
+            "direct_sun",
+            "overcast",
+            "golden_hour",
+            "continuous_artificial",
+            "flash",
+            "mixed",
+            "low_light",
+            "night",
+            "backlit",
+            "unknown"
+          ]
+        },
+        "light_control": {
+          "enum": [
+            "full",
+            "partial",
+            "none",
+            "unknown"
+          ]
+        },
+        "subject_motion": {
+          "enum": [
+            "static",
+            "slow",
+            "fast",
+            "mixed",
+            "unknown"
+          ]
+        },
+        "challenges": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "reflective",
+              "transparent",
+              "translucent",
+              "glossy",
+              "matte",
+              "dark_on_dark",
+              "light_on_light",
+              "fine_structure",
+              "fabric_texture",
+              "skin_tones",
+              "mixed_color_temperature",
+              "backlight",
+              "high_dynamic_range",
+              "crowd",
+              "weather",
+              "macro",
+              "unknown"
+            ]
+          }
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scale",
+        "materials",
+        "people_count"
+      ],
+      "properties": {
+        "scale": {
+          "enum": [
+            "macro",
+            "small",
+            "medium",
+            "large",
+            "scene",
+            "unknown"
+          ]
+        },
+        "materials": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "people_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tripod",
+        "flash",
+        "continuous_lights",
+        "reflector",
+        "diffuser",
+        "assistant"
+      ],
+      "properties": {
+        "tripod": {
+          "type": "boolean"
+        },
+        "flash": {
+          "type": "boolean"
+        },
+        "continuous_lights": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "reflector": {
+          "type": "boolean"
+        },
+        "diffuser": {
+          "type": "boolean"
+        },
+        "assistant": {
+          "type": "boolean"
+        }
+      }
+    },
+    "guidance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "experience",
+        "mode",
+        "include_settings",
+        "include_lighting",
+        "include_shot_list",
+        "include_preflight"
+      ],
+      "properties": {
+        "experience": {
+          "enum": [
+            "beginner",
+            "intermediate",
+            "advanced"
+          ]
+        },
+        "mode": {
+          "enum": [
+            "pre_capture",
+            "on_location",
+            "troubleshooting"
+          ]
+        },
+        "include_settings": {
+          "type": "boolean"
+        },
+        "include_lighting": {
+          "type": "boolean"
+        },
+        "include_shot_list": {
+          "type": "boolean"
+        },
+        "include_preflight": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

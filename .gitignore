@@ -1,0 +1,70 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Builds and generated distributions
+build/
+dist/
+.build-dist/
+*.whl
+
+# Runtime workspaces and user data
+workspace/
+workspaces/
+outputs/
+artifacts/
+*.log
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+ai-image-studio.config.json
+*.local.json
+
+# Private client profiles and photography assets
+private/
+client-profiles/
+*.cr2
+*.cr3
+*.nef
+*.arw
+*.dng
+*.raf
+*.orf
+*.rw2
+*.heic
+*.tif
+*.tiff
+*.psd
+*.xcf
+
+# Large media should not enter source control by default
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.avif
+!assets/**/*.png
+!assets/**/*.jpg
+!assets/**/*.jpeg
+!docs/**/*.png
+!docs/**/*.jpg
+!tests/fixtures/**/*.png
+!tests/fixtures/**/*.jpg
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

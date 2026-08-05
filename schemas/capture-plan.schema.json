@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-image-studio.local/schemas/capture-plan.schema.json",
+  "title": "CapturePlan",
+  "description": "Plan de captura recomendado; los valores son puntos de partida y deben verificarse con medición y prueba real.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_id",
+    "confidence",
+    "assumptions",
+    "questions",
+    "camera",
+    "smartphone",
+    "lighting",
+    "composition",
+    "shot_list",
+    "preflight",
+    "warnings",
+    "sources"
+  ],
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "camera": {
+      "type": "object"
+    },
+    "smartphone": {
+      "type": "object"
+    },
+    "lighting": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "composition": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "shot_list": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "preflight": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

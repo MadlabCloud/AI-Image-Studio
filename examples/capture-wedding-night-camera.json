@@ -1,0 +1,44 @@
+{
+  "category": "event",
+  "subtype": "wedding",
+  "destination": "personal",
+  "device": {
+    "kind": "camera",
+    "brand": null,
+    "model": null,
+    "controls": "manual",
+    "raw_capability": "yes"
+  },
+  "scene": {
+    "location": "indoor",
+    "lighting": "night",
+    "light_control": "partial",
+    "subject_motion": "fast",
+    "challenges": [
+      "skin_tones",
+      "mixed_color_temperature",
+      "crowd"
+    ]
+  },
+  "subject": {
+    "scale": "scene",
+    "materials": [],
+    "people_count": 80
+  },
+  "resources": {
+    "tripod": false,
+    "flash": true,
+    "continuous_lights": 0,
+    "reflector": false,
+    "diffuser": false,
+    "assistant": true
+  },
+  "guidance": {
+    "experience": "intermediate",
+    "mode": "pre_capture",
+    "include_settings": true,
+    "include_lighting": true,
+    "include_shot_list": true,
+    "include_preflight": true
+  }
+}

@@ -1,0 +1,116 @@
+from __future__ import annotations
+import os
+from pathlib import Path
+from .inspect import inspect_file
+from .jobs import prepare_job
+from .decision import validate_decision, decision_gaps, route_decision
+from .capture_guide import validate_capture_request, capture_request_gaps, recommend_capture
+from .masks import compare_mask_files
+from .qc import validate_background, validate_dimensions, compare_pixels
+from .export import export_webp, export_png
+from .packaging import package_directory
+from .user_config import validate_user_config
+from .doctor import system_doctor
+
+def _guard(path: str, output: bool = False) -> str:
+    root = os.environ.get("AI_IMAGE_STUDIO_ALLOWED_ROOT")
+    p = Path(path).expanduser().resolve()
+    if root:
+        allowed = Path(root).expanduser().resolve()
+        target = p.parent if output else p
+        if target != allowed and allowed not in target.parents:
+            raise ValueError(f"Ruta fuera de AI_IMAGE_STUDIO_ALLOWED_ROOT: {p}")
+    return str(p)
+
+def build_server():
+    try:
+        from mcp.server.fastmcp import FastMCP
+    except ImportError as exc:
+        raise RuntimeError("Instala el extra MCP: pip install -e '.[mcp]'") from exc
+    mcp=FastMCP("AI Image Studio")
+
+    @mcp.tool()
+    def image_system_doctor(workspace: str | None = None) -> dict:
+        """Comprueba dependencias esenciales, escritura local, skills instaladas y motores opcionales sin usar la red."""
+        return system_doctor(_guard(workspace, output=True) if workspace else None)
+
+    @mcp.tool()
+    def image_validate_user_config(config: dict) -> dict:
+        """Valida la configuración local y bloquea secretos en texto plano o servicios externos no autorizados."""
+        validate_user_config(config)
+        return {"valid": True}
+
+    @mcp.tool()
+    def image_inspect(path: str) -> dict:
+        """Inspecciona un archivo local sin modificarlo: hash, tamaño, formato, dimensiones y metadatos técnicos permitidos."""
+        return inspect_file(_guard(path))
+
+    @mcp.tool()
+    def image_prepare_job(job: dict, workspace: str) -> dict:
+        """Valida un ImageJob, verifica el hash, preserva una copia inmutable y bloquea la especificación."""
+        return prepare_job(job, _guard(workspace, output=True))
+
+    @mcp.tool()
+    def image_validate_decision(decision: dict) -> dict:
+        """Valida las siete variables universales y devuelve las preguntas todavía recomendadas."""
+        validate_decision(decision)
+        return {"valid": True, "gaps": decision_gaps(decision)}
+
+    @mcp.tool()
+    def image_route_decision(decision: dict) -> dict:
+        """Selecciona el flujo especializado sin asumir fondo blanco ni una cámara concreta."""
+        return route_decision(decision)
+
+    @mcp.tool()
+    def image_validate_capture_request(request: dict) -> dict:
+        """Valida los datos necesarios para recomendar una captura fotográfica según sujeto, luz, movimiento, dispositivo y recursos."""
+        validate_capture_request(request)
+        return {"valid": True, "gaps": capture_request_gaps(request)}
+
+    @mcp.tool()
+    def image_recommend_capture(request: dict) -> dict:
+        """Genera un plan de captura conservador y trazable, con soporte específico solo para las dos generaciones móviles mantenidas."""
+        return recommend_capture(request)
+
+    @mcp.tool()
+    def image_compare_masks(mask_a: str, mask_b: str) -> dict:
+        """Compara dos máscaras independientes y devuelve IoU, precisión, recall, áreas, cajas y componentes."""
+        return compare_mask_files(_guard(mask_a), _guard(mask_b))
+
+    @mcp.tool()
+    def image_validate_background(image: str, mask: str | None = None, min_channel: int = 250, max_nonwhite_ratio: float = 0.002) -> dict:
+        """Valida que el fondo sea prácticamente blanco puro; usa máscara de producto cuando esté disponible."""
+        return validate_background(_guard(image), _guard(mask) if mask else None, min_channel, max_nonwhite_ratio)
+
+    @mcp.tool()
+    def image_validate_output(image: str, width: int, height: int, expected_format: str | None = None) -> dict:
+        """Valida dimensiones exactas, formato y ausencia de alpha accidental."""
+        return validate_dimensions(_guard(image), width, height, expected_format)
+
+    @mcp.tool()
+    def image_compare_pixels(reference: str, result: str, mask: str | None = None) -> dict:
+        """Compara píxeles de referencia y resultado ya alineados; opcionalmente restringe la medición a una máscara."""
+        return compare_pixels(_guard(reference), _guard(result), _guard(mask) if mask else None)
+
+    @mcp.tool()
+    def image_export_webp(source: str, destination: str, width: int = 1000, height: int = 1000, quality: int = 86, fit: str = "contain") -> dict:
+        """Exporta WebP de forma determinista sobre fondo blanco, sin EXIF y sin deformar por defecto."""
+        return export_webp(_guard(source), _guard(destination, output=True), width, height, quality, fit)
+
+    @mcp.tool()
+    def image_export_png(source: str, destination: str, width: int | None = None, height: int | None = None) -> dict:
+        """Exporta PNG RGB sobre fondo blanco, preservando proporciones."""
+        return export_png(_guard(source), _guard(destination, output=True), width, height)
+
+    @mcp.tool()
+    def image_package(source_dir: str, zip_path: str, job_id: str = "unassigned") -> dict:
+        """Crea ZIP reproducible con manifiesto de artefactos y hashes SHA-256."""
+        return package_directory(_guard(source_dir), _guard(zip_path, output=True), job_id)
+    return mcp
+
+def main():
+    transport=os.environ.get('AI_IMAGE_STUDIO_MCP_TRANSPORT','stdio')
+    server=build_server()
+    server.run(transport=transport)
+
+if __name__=='__main__': main()

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Image Quality Gates"
+  short_description: "Validación adversarial antes de publicar"
+  brand_color: "#1F4E79"
+  default_prompt: "Compara original y resultado y aplica todas las puertas de calidad."
+policy:
+  allow_implicit_invocation: true

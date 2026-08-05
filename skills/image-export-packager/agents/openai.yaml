@@ -1,0 +1,7 @@
+interface:
+  display_name: "Image Export Packager"
+  short_description: "PNG, WebP y ZIP validados"
+  brand_color: "#1F4E79"
+  default_prompt: "Exporta únicamente las imágenes aprobadas y crea el paquete final."
+policy:
+  allow_implicit_invocation: true

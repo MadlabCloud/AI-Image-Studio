@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "last_verified": "2026-08-05",
+  "policy": {
+    "specific_mobile_instructions": "Solo se mantienen instrucciones específicas para las dos generaciones insignia más recientes de Apple iPhone y Samsung Galaxy S. El resto recibe guía genérica de smartphone.",
+    "exact_model_verification_required": true,
+    "update_cadence": "Revisar después de cada lanzamiento insignia y al menos trimestralmente."
+  },
+  "families": [
+    {
+      "brand": "Apple",
+      "generation": "iPhone 17",
+      "match_tokens": [
+        "iphone 17",
+        "iphone air"
+      ],
+      "status": "current",
+      "models": [
+        "iPhone 17 Pro",
+        "iPhone 17 Pro Max",
+        "iPhone 17",
+        "iPhone Air",
+        "iPhone 17e"
+      ],
+      "official_sources": [
+        "https://www.apple.com/es/iphone/",
+        "https://support.apple.com/es-es/guide/iphone/iphae1e882a3/ios",
+        "https://support.apple.com/es-es/guide/iphone/iph0c397b154/ios"
+      ],
+      "capability_notes": [
+        "Las instrucciones ProRAW solo se aplican a modelos Pro compatibles; verificar el modelo exacto antes de recomendar RAW.",
+        "El bloqueo AE/AF y los controles de cámara dependen del modelo y del sistema; verificar la guía vigente de iOS."
+      ]
+    },
+    {
+      "brand": "Apple",
+      "generation": "iPhone 16",
+      "match_tokens": [
+        "iphone 16"
+      ],
+      "status": "previous",
+      "models": [
+        "iPhone 16 Pro",
+        "iPhone 16 Pro Max",
+        "iPhone 16",
+        "iPhone 16 Plus",
+        "iPhone 16e"
+      ],
+      "official_sources": [
+        "https://www.apple.com/es/iphone/compare/",
+        "https://support.apple.com/es-es/119916"
+      ],
+      "capability_notes": [
+        "Las instrucciones ProRAW solo se aplican a modelos Pro compatibles; no inferir ProRAW en variantes no Pro."
+      ]
+    },
+    {
+      "brand": "Samsung",
+      "generation": "Galaxy S26",
+      "match_tokens": [
+        "galaxy s26",
+        "s26 ultra",
+        "s26+"
+      ],
+      "status": "current",
+      "models": [
+        "Galaxy S26",
+        "Galaxy S26+",
+        "Galaxy S26 Ultra"
+      ],
+      "official_sources": [
+        "https://www.samsung.com/es/smartphones/galaxy-s26/",
+        "https://www.samsung.com/es/smartphones/galaxy-s26-ultra/",
+        "https://www.samsung.com/es/support/mobile-devices/fotografia-profesional-con-la-aplicacion-galaxy-expert-raw/"
+      ],
+      "capability_notes": [
+        "La disponibilidad de Expert RAW debe verificarse para el modelo exacto y la versión de software instalada.",
+        "Usar la cámara principal y evitar zoom digital en capturas de producto con fidelidad crítica."
+      ]
+    },
+    {
+      "brand": "Samsung",
+      "generation": "Galaxy S25",
+      "match_tokens": [
+        "galaxy s25",
+        "s25 ultra",
+        "s25+",
+        "s25 fe"
+      ],
+      "status": "previous",
+      "models": [
+        "Galaxy S25",
+        "Galaxy S25+",
+        "Galaxy S25 Ultra",
+        "Galaxy S25 FE"
+      ],
+      "official_sources": [
+        "https://www.samsung.com/es/mobile-phone-buying-guide/galaxy-s25-vs-s26/",
+        "https://www.samsung.com/es/support/mobile-devices/fotografia-profesional-con-la-aplicacion-galaxy-expert-raw/"
+      ],
+      "capability_notes": [
+        "Las capacidades de cámara y Expert RAW varían según el modelo; verificar antes de mostrar pasos específicos."
+      ]
+    }
+  ]
+}

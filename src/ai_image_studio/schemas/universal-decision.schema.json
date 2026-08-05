@@ -1,0 +1,407 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-image-studio.local/schemas/universal-decision.schema.json",
+  "title": "UniversalImageDecision",
+  "description": "Modelo de decisión universal previo a cualquier edición o recomendación fotográfica.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "category",
+    "destination",
+    "capture",
+    "fidelity",
+    "background",
+    "outputs"
+  ],
+  "properties": {
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "subtype",
+        "source",
+        "confidence"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "product",
+            "portrait",
+            "event",
+            "travel",
+            "architecture",
+            "real_estate",
+            "food",
+            "restoration",
+            "document",
+            "creative",
+            "other"
+          ]
+        },
+        "subtype": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "enum": [
+            "user",
+            "inferred",
+            "confirmed"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "destination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary",
+        "platform",
+        "profile_id",
+        "requirements_known"
+      ],
+      "properties": {
+        "primary": {
+          "enum": [
+            "own_web",
+            "ecommerce_platform",
+            "marketplace",
+            "social_media",
+            "advertising",
+            "print_catalog",
+            "cv_linkedin",
+            "personal_album",
+            "editorial",
+            "real_estate_listing",
+            "delivery_menu",
+            "archive",
+            "internal",
+            "other",
+            "unknown"
+          ]
+        },
+        "platform": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "profile_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "requirements_known": {
+          "type": "boolean"
+        }
+      }
+    },
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "device",
+        "source_format",
+        "scenario",
+        "guidance_requested"
+      ],
+      "properties": {
+        "device": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "brand",
+            "model",
+            "metadata_checked",
+            "configuration_known"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "camera",
+                "smartphone",
+                "scanner",
+                "drone",
+                "generated",
+                "unknown"
+              ]
+            },
+            "brand": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "model": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "metadata_checked": {
+              "type": "boolean"
+            },
+            "configuration_known": {
+              "type": "boolean"
+            }
+          }
+        },
+        "source_format": {
+          "enum": [
+            "raw",
+            "raw+jpeg",
+            "jpeg",
+            "heic",
+            "png",
+            "tiff",
+            "other",
+            "unknown"
+          ]
+        },
+        "scenario": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "location",
+            "lighting",
+            "subject_motion",
+            "challenges"
+          ],
+          "properties": {
+            "location": {
+              "enum": [
+                "indoor",
+                "outdoor",
+                "mixed",
+                "unknown"
+              ]
+            },
+            "lighting": {
+              "enum": [
+                "controlled_studio",
+                "natural_daylight",
+                "direct_sun",
+                "overcast",
+                "golden_hour",
+                "continuous_artificial",
+                "flash",
+                "mixed",
+                "low_light",
+                "night",
+                "backlit",
+                "unknown"
+              ]
+            },
+            "subject_motion": {
+              "enum": [
+                "static",
+                "slow",
+                "fast",
+                "mixed",
+                "unknown"
+              ]
+            },
+            "challenges": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "reflective",
+                  "transparent",
+                  "translucent",
+                  "dark_on_dark",
+                  "light_on_light",
+                  "fine_structure",
+                  "fabric_texture",
+                  "skin_tones",
+                  "mixed_color_temperature",
+                  "backlight",
+                  "high_dynamic_range",
+                  "crowd",
+                  "weather",
+                  "unknown"
+                ]
+              }
+            }
+          }
+        },
+        "guidance_requested": {
+          "type": "boolean"
+        }
+      }
+    },
+    "fidelity": {
+      "enum": [
+        "strict",
+        "commercial",
+        "creative"
+      ]
+    },
+    "background": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relevance",
+        "policy",
+        "original_type",
+        "target_mode",
+        "target_value",
+        "profile_id",
+        "shadow"
+      ],
+      "properties": {
+        "relevance": {
+          "enum": [
+            "critical",
+            "optional",
+            "preserve",
+            "not_applicable"
+          ]
+        },
+        "policy": {
+          "enum": [
+            "product_catalog",
+            "product_environment",
+            "portrait_neutral",
+            "portrait_contextual",
+            "event_preserve",
+            "travel_preserve",
+            "architecture_preserve",
+            "real_estate_truthful",
+            "food_presentation",
+            "document_clean",
+            "custom",
+            "preserve",
+            "not_applicable"
+          ]
+        },
+        "original_type": {
+          "enum": [
+            "fabric",
+            "paper",
+            "wall",
+            "floor",
+            "table",
+            "environment",
+            "transparent",
+            "mixed",
+            "unknown",
+            "not_applicable"
+          ]
+        },
+        "target_mode": {
+          "enum": [
+            "preserve",
+            "cleanup",
+            "solid",
+            "transparent",
+            "blur",
+            "replace_scene",
+            "generate_environment",
+            "not_applicable"
+          ]
+        },
+        "target_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "profile_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "shadow": {
+          "enum": [
+            "none",
+            "contact-soft",
+            "natural",
+            "preserve-original",
+            "not_applicable"
+          ]
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested",
+        "environment"
+      ],
+      "properties": {
+        "requested": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "catalog",
+              "environment",
+              "web",
+              "marketplace",
+              "social",
+              "print",
+              "master",
+              "contact_sheet",
+              "zip",
+              "report"
+            ]
+          }
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requested",
+            "context_source",
+            "description",
+            "reference_paths",
+            "recommendations_requested"
+          ],
+          "properties": {
+            "requested": {
+              "type": "boolean"
+            },
+            "context_source": {
+              "enum": [
+                "user",
+                "reference",
+                "recommended",
+                "none"
+              ]
+            },
+            "description": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reference_paths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "recommendations_requested": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  }
+}

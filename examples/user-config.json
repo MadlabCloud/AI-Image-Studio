@@ -1,0 +1,27 @@
+{
+  "schema_version": "0.4.0",
+  "language": "es",
+  "workspace_root": "./workspace",
+  "installation": {
+    "mode": "development",
+    "primary_platform": "unknown"
+  },
+  "privacy": {
+    "preserve_originals": true,
+    "allow_external_uploads": false,
+    "strip_metadata_web": true,
+    "log_file_paths": false
+  },
+  "defaults": {
+    "fidelity": "strict",
+    "ask_before_edit": true,
+    "human_review_on_uncertainty": true,
+    "fail_closed": true
+  },
+  "paths": {
+    "exports": "exports",
+    "cache": ".cache",
+    "logs": "logs"
+  },
+  "external_services": []
+}

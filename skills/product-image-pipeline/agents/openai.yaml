@@ -1,0 +1,7 @@
+interface:
+  display_name: "Product Image Pipeline"
+  short_description: "Edición ecommerce con fidelidad estricta"
+  brand_color: "#1F4E79"
+  default_prompt: "Prepara estas fotos de producto para ecommerce sin modificar el producto."
+policy:
+  allow_implicit_invocation: true

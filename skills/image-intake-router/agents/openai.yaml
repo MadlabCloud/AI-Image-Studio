@@ -1,0 +1,7 @@
+interface:
+  display_name: "Image Intake Router"
+  short_description: "Diagnóstico y especificación previa"
+  brand_color: "#1F4E79"
+  default_prompt: "Analiza estas imágenes, haz solo las preguntas necesarias y prepara una especificación bloqueada."
+policy:
+  allow_implicit_invocation: true

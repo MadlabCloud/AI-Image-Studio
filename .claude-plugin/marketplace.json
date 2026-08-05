@@ -1,0 +1,14 @@
+{
+  "name": "ai-image-studio-marketplace",
+  "owner": {
+    "name": "AI Image Studio"
+  },
+  "plugins": [
+    {
+      "name": "ai-image-studio",
+      "source": ".",
+      "description": "Edición de imágenes con fidelidad y puertas de calidad",
+      "version": "0.5.0"
+    }
+  ]
+}

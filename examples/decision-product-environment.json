@@ -1,0 +1,58 @@
+{
+  "category": {
+    "type": "product",
+    "subtype": "furniture",
+    "source": "confirmed",
+    "confidence": 1.0
+  },
+  "destination": {
+    "primary": "advertising",
+    "platform": "Meta Ads",
+    "profile_id": "resuntex-web",
+    "requirements_known": true
+  },
+  "capture": {
+    "device": {
+      "kind": "camera",
+      "brand": null,
+      "model": null,
+      "metadata_checked": false,
+      "configuration_known": false
+    },
+    "source_format": "raw+jpeg",
+    "scenario": {
+      "location": "indoor",
+      "lighting": "continuous_artificial",
+      "subject_motion": "static",
+      "challenges": [
+        "fabric_texture",
+        "fine_structure",
+        "reflective"
+      ]
+    },
+    "guidance_requested": false
+  },
+  "fidelity": "strict",
+  "background": {
+    "relevance": "critical",
+    "policy": "product_environment",
+    "original_type": "fabric",
+    "target_mode": "generate_environment",
+    "target_value": null,
+    "profile_id": "resuntex-summer-campaign",
+    "shadow": "natural"
+  },
+  "outputs": {
+    "requested": [
+      "environment",
+      "social"
+    ],
+    "environment": {
+      "requested": true,
+      "context_source": "recommended",
+      "description": null,
+      "reference_paths": [],
+      "recommendations_requested": true
+    }
+  }
+}

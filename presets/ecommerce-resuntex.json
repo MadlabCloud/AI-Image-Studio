@@ -1,0 +1,36 @@
+{
+  "name": "ecommerce-resuntex",
+  "version": "1.0.0",
+  "category": "product",
+  "fidelity": "strict",
+  "background": {
+    "target": "#FFFFFF",
+    "shadow": "contact-soft"
+  },
+  "composition": {
+    "aspect_ratio": "1:1",
+    "occupancy_min": 0.78,
+    "occupancy_max": 0.82,
+    "alignment": "center"
+  },
+  "output": {
+    "master": {
+      "format": "png"
+    },
+    "web": {
+      "format": "webp",
+      "width": 1000,
+      "height": 1000,
+      "quality": 86,
+      "color_space": "sRGB",
+      "remove_metadata": true
+    }
+  },
+  "forbidden_operations": [
+    "full_image_generation",
+    "geometry_change",
+    "product_recolor",
+    "add_product_parts",
+    "remove_product_parts"
+  ]
+}

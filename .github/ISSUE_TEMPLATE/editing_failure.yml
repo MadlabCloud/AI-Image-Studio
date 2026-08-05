@@ -1,0 +1,35 @@
+name: Editing quality failure
+description: Report a fidelity or quality-gate failure using sanitized evidence
+title: "[Editing failure]: "
+labels: [quality]
+body:
+  - type: markdown
+    attributes:
+      value: Never upload identifiable people, customer media or confidential products without permission. Prefer hashes, masks, synthetic reproductions and redacted QC reports.
+  - type: input
+    id: version
+    attributes:
+      label: AI Image Studio version
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Image category
+      options: [Product, Portrait or CV, Wedding or event, Travel or architecture, Real estate, Gastronomy, Other]
+    validations:
+      required: true
+  - type: dropdown
+    id: gate
+    attributes:
+      label: Failed or bypassed quality gate
+      options: [Background, Geometry, Color, Edges, Expected parts, Dimensions, Format, Privacy, Unknown]
+    validations:
+      required: true
+  - type: textarea
+    id: report
+    attributes:
+      label: Sanitized QC evidence
+      description: Include versioned settings, hashes and redacted reports.
+    validations:
+      required: true
