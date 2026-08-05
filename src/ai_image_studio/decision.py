@@ -8,6 +8,7 @@ PRODUCT_ENV_DESTINATIONS = {
     "own_web", "ecommerce_platform", "marketplace", "social_media", "advertising"
 }
 PRODUCT_BACKGROUND_POLICIES = {"product_catalog", "product_environment"}
+IMPLEMENTED_PIPELINES = {"product": "product-image-pipeline"}
 
 
 def load_decision_schema() -> dict:
@@ -32,14 +33,12 @@ def validate_decision(decision: dict) -> None:
 
     if category != "product" and background["policy"] in PRODUCT_BACKGROUND_POLICIES:
         raise ValueError("Las políticas product_catalog/product_environment solo se permiten para category=product")
-
     if background["target_mode"] == "generate_environment" and category != "product":
         raise ValueError("generate_environment solo se permite para category=product")
 
     requested_environment = "environment" in outputs["requested"]
     if environment["requested"] != requested_environment:
         raise ValueError("outputs.environment.requested debe coincidir con la presencia de 'environment' en outputs.requested")
-
     if requested_environment:
         if category != "product":
             raise ValueError("La salida environment de esta versión solo se permite para productos")
@@ -54,13 +53,11 @@ def validate_decision(decision: dict) -> None:
     if background["relevance"] == "not_applicable":
         if background["policy"] != "not_applicable" or background["target_mode"] != "not_applicable":
             raise ValueError("background not_applicable exige policy y target_mode not_applicable")
-
     if background["target_mode"] == "solid" and not background.get("target_value"):
         raise ValueError("background.target_mode=solid exige target_value")
 
 
 def decision_gaps(decision: dict) -> list[dict]:
-    """Devuelve preguntas recomendadas; los valores unknown son válidos, no errores."""
     validate_decision(decision)
     gaps: list[dict] = []
     if decision["destination"]["primary"] == "unknown":
@@ -82,25 +79,15 @@ def decision_gaps(decision: dict) -> list[dict]:
 def route_decision(decision: dict) -> dict:
     validate_decision(decision)
     category = decision["category"]["type"]
-    routes = {
-        "product": "product-image-pipeline",
-        "portrait": "portrait-image-pipeline",
-        "event": "event-image-pipeline",
-        "travel": "travel-image-pipeline",
-        "architecture": "architecture-image-pipeline",
-        "real_estate": "real-estate-image-pipeline",
-        "food": "food-image-pipeline",
-        "restoration": "restoration-image-pipeline",
-        "document": "document-image-pipeline",
-        "creative": "creative-image-pipeline",
-        "other": "image-intake-router",
-    }
+    implemented = category in IMPLEMENTED_PIPELINES
     secondary_skills = []
     if decision["capture"]["guidance_requested"]:
         secondary_skills.append("photographer-capture-guide")
     return {
         "category": category,
-        "primary_skill": routes[category],
+        "primary_skill": IMPLEMENTED_PIPELINES.get(category, "image-intake-router"),
+        "implementation_status": "implemented" if implemented else "planned",
+        "specialized_pipeline_available": implemented,
         "secondary_skills": secondary_skills,
         "capture_guidance_requested": decision["capture"]["guidance_requested"],
         "background_policy": decision["background"]["policy"],
