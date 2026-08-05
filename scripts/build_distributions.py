@@ -2,8 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 import shutil
-import tomllib
 import zipfile
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10
+    import tomli as tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
