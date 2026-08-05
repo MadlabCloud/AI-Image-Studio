@@ -36,7 +36,9 @@ jobs:
         run: |
           tar -xJf /tmp/source.tar.xz
           rm -rf .bootstrap
-          rm -f .github/workflows/bootstrap-source.yml
+          rm -f .github/workflows/ci.yml
+          rm -f .github/workflows/release.yml
+          rm -f .github/workflows/security.yml
 
       - name: Commit prepared source tree
         shell: bash
