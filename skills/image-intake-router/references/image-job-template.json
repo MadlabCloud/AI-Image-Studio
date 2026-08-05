@@ -8,41 +8,19 @@
     "immutable": true
   },
   "product": {
-    "name": "Taburete",
+    "name": "Sample stool",
     "sku": "SKU-001",
-    "color": "verde",
-    "materials": [
-      "terciopelo",
-      "metal dorado"
-    ],
-    "expected_parts": {
-      "seat": 1,
-      "backrest": 1,
-      "legs": 4
-    }
+    "color": "green",
+    "materials": ["velvet", "gold metal"],
+    "expected_parts": {"seat": 1, "backrest": 1, "legs": 4}
   },
   "background": {
     "original": "fabric",
     "target": "#FFFFFF",
     "shadow": "contact-soft"
   },
-  "allowed_operations": [
-    "inspect",
-    "raw_development",
-    "white_balance",
-    "exposure",
-    "background_removal",
-    "white_background",
-    "resize",
-    "export"
-  ],
-  "forbidden_operations": [
-    "full_image_generation",
-    "geometry_change",
-    "product_recolor",
-    "add_product_parts",
-    "remove_product_parts"
-  ],
+  "allowed_operations": ["inspect", "raw_development", "white_balance", "exposure", "background_removal", "white_background", "resize", "export"],
+  "forbidden_operations": ["full_image_generation", "geometry_change", "product_recolor", "add_product_parts", "remove_product_parts"],
   "output": {
     "width": 1000,
     "height": 1000,
@@ -54,63 +32,19 @@
   "confirmed": true,
   "notes": [],
   "decision": {
-    "category": {
-      "type": "product",
-      "subtype": "furniture",
-      "source": "confirmed",
-      "confidence": 1.0
-    },
-    "destination": {
-      "primary": "own_web",
-      "platform": "WooCommerce",
-      "profile_id": "resuntex-web",
-      "requirements_known": true
-    },
+    "category": {"type": "product", "subtype": "furniture", "source": "confirmed", "confidence": 1.0},
+    "destination": {"primary": "own_web", "platform": "Example Store", "profile_id": "example-store-web", "requirements_known": true},
     "capture": {
-      "device": {
-        "kind": "camera",
-        "brand": null,
-        "model": null,
-        "metadata_checked": false,
-        "configuration_known": false
-      },
+      "device": {"kind": "camera", "brand": null, "model": null, "metadata_checked": false, "configuration_known": false},
       "source_format": "raw+jpeg",
-      "scenario": {
-        "location": "indoor",
-        "lighting": "continuous_artificial",
-        "subject_motion": "static",
-        "challenges": [
-          "fabric_texture",
-          "fine_structure",
-          "reflective"
-        ]
-      },
+      "scenario": {"location": "indoor", "lighting": "continuous_artificial", "subject_motion": "static", "challenges": ["fabric_texture", "fine_structure", "reflective"]},
       "guidance_requested": false
     },
     "fidelity": "strict",
-    "background": {
-      "relevance": "critical",
-      "policy": "product_catalog",
-      "original_type": "fabric",
-      "target_mode": "solid",
-      "target_value": "#FFFFFF",
-      "profile_id": "resuntex-web",
-      "shadow": "contact-soft"
-    },
+    "background": {"relevance": "critical", "policy": "product_catalog", "original_type": "fabric", "target_mode": "solid", "target_value": "#FFFFFF", "profile_id": "example-store-web", "shadow": "contact-soft"},
     "outputs": {
-      "requested": [
-        "catalog",
-        "web",
-        "master",
-        "zip"
-      ],
-      "environment": {
-        "requested": false,
-        "context_source": "none",
-        "description": null,
-        "reference_paths": [],
-        "recommendations_requested": false
-      }
+      "requested": ["catalog", "web", "master", "zip"],
+      "environment": {"requested": false, "context_source": "none", "description": null, "reference_paths": [], "recommendations_requested": false}
     }
   }
 }
