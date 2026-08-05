@@ -7,8 +7,8 @@
   },
   "destination": {
     "primary": "advertising",
-    "platform": "Meta Ads",
-    "profile_id": "resuntex-web",
+    "platform": "Example Ads",
+    "profile_id": "example-store-web",
     "requirements_known": true
   },
   "capture": {
@@ -24,11 +24,7 @@
       "location": "indoor",
       "lighting": "continuous_artificial",
       "subject_motion": "static",
-      "challenges": [
-        "fabric_texture",
-        "fine_structure",
-        "reflective"
-      ]
+      "challenges": ["fabric_texture", "fine_structure", "reflective"]
     },
     "guidance_requested": false
   },
@@ -39,14 +35,11 @@
     "original_type": "fabric",
     "target_mode": "generate_environment",
     "target_value": null,
-    "profile_id": "resuntex-summer-campaign",
+    "profile_id": "example-summer-campaign",
     "shadow": "natural"
   },
   "outputs": {
-    "requested": [
-      "environment",
-      "social"
-    ],
+    "requested": ["environment", "social"],
     "environment": {
       "requested": true,
       "context_source": "recommended",
