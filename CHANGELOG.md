@@ -69,7 +69,9 @@ las seis skills, los esquemas, los presets y los ejemplos son idénticos.
   construcción anterior, la construcción **aborta**. Antes solo avisaba, y un archivo ajeno
   al repositorio podía viajar dentro del ZIP; reproducido en Windows sobre un árbol
   sincronizado con la nube, donde las carpetas se vuelven marcadores de posición de solo
-  lectura que `rmtree` no puede borrar.
+  lectura que `rmtree` no puede borrar. Al conceder permiso de escritura se conserva el
+  resto del modo: asignarlo a secas dejaba un directorio POSIX en `0o200`, sin permiso de
+  búsqueda, y `rmtree` fallaba justo en el caso que se intentaba resolver.
 
 - **CLI**: cualquier error salía como traza de Python y todos compartían el código 1. Ahora
   muestra un mensaje legible en stderr y distingue: **2** entrada inválida, **3** puerta

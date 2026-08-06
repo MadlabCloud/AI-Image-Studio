@@ -41,13 +41,15 @@ jobs:
       - name: Construir el servidor MCP
         run: python -c "from ai_image_studio.mcp_server import build_server; build_server(); print('servidor MCP OK')"
 
+      # Fuera del repositorio: la salida lleva rutas de la maquina y el escaneo de
+      # privacidad abortaria la construccion de los artefactos.
       - name: doctor
         shell: bash
         run: |
-          ai-image-studio doctor > doctor.json
+          ai-image-studio doctor > "$RUNNER_TEMP/doctor.json"
           python -c "
-          import json
-          d = json.load(open('doctor.json'))
+          import json, os
+          d = json.load(open(os.path.join(os.environ['RUNNER_TEMP'], 'doctor.json')))
           assert d['ready'] is True and d['mcp']['state'] == 'ok', d
           print('doctor OK')
           "

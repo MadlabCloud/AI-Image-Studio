@@ -350,6 +350,20 @@ def build_standalone_skills() -> None:
     )
 
 
+def _permitir_escritura(path: Path) -> None:
+    """Anade el permiso de escritura conservando el resto del modo.
+
+    Asignar ``stat.S_IWRITE`` a secas seria un error grave en POSIX: deja el archivo
+    o el directorio en ``0o200``, y un directorio sin permiso de busqueda ya no se
+    puede recorrer, asi que ``rmtree`` falla justo cuando se le pedia lo contrario.
+    En Windows la llamada solo conmuta el atributo de solo lectura.
+    """
+    try:
+        path.chmod(path.stat().st_mode | stat.S_IWUSR)
+    except OSError:
+        pass
+
+
 def _force_delete(entry: Path) -> None:
     """Borra ``entry`` aunque lleve el atributo de solo lectura.
 
@@ -359,14 +373,11 @@ def _force_delete(entry: Path) -> None:
     """
     if entry.is_dir() and not entry.is_symlink():
         for child in sorted(entry.rglob("*"), reverse=True):
-            try:
-                child.chmod(stat.S_IWRITE)
-            except OSError:
-                pass
-        entry.chmod(stat.S_IWRITE)
+            _permitir_escritura(child)
+        _permitir_escritura(entry)
         shutil.rmtree(entry)
     else:
-        entry.chmod(stat.S_IWRITE)
+        _permitir_escritura(entry)
         entry.unlink()
 
 

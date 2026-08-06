@@ -72,13 +72,16 @@ jobs:
           print('servidor MCP construido con', len(s._tool_manager.list_tools()), 'herramientas')
           "
 
+      # La salida va FUERA del repositorio: contiene rutas de la maquina y, si se
+      # escribe en el arbol, el escaneo de privacidad aborta despues la construccion
+      # de los artefactos y tumba la suite entera.
       - name: doctor debe declarar la capacidad MCP operativa
         shell: bash
         run: |
-          ai-image-studio doctor > doctor.json
+          ai-image-studio doctor > "$RUNNER_TEMP/doctor.json"
           python -c "
-          import json
-          d = json.load(open('doctor.json'))
+          import json, os
+          d = json.load(open(os.path.join(os.environ['RUNNER_TEMP'], 'doctor.json')))
           assert d['mcp']['state'] == 'ok', d['mcp']
           assert d['ready'] is True, d['critical_failures']
           print('doctor: ready=True, mcp.state=ok')
@@ -103,10 +106,10 @@ jobs:
         run: pip install "mcp==2.0.0"
       - name: doctor debe fallar con ready=false
         run: |
-          ai-image-studio doctor > doctor.json || true
+          ai-image-studio doctor > "$RUNNER_TEMP/doctor.json" || true
           python -c "
-          import json
-          d = json.load(open('doctor.json'))
+          import json, os
+          d = json.load(open(os.path.join(os.environ['RUNNER_TEMP'], 'doctor.json')))
           assert d['mcp']['state'] == 'incompatible', d['mcp']
           assert d['ready'] is False, 'ready no puede ser true con MCP inservible'
           print('correcto: state=incompatible, ready=False')

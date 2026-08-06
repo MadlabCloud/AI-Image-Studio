@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import stat
 import subprocess
@@ -352,6 +353,28 @@ def test_reset_directory_removes_read_only_leftovers(tmp_path):
 
     assert stage.is_dir()
     assert list(stage.iterdir()) == [], "el stage quedo contaminado"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="Windows no aplica modos POSIX")
+def test_granting_write_permission_keeps_a_directory_traversable(tmp_path):
+    """Anadir permiso de escritura no puede quitar el de busqueda.
+
+    Asignar `stat.S_IWRITE` a secas dejaba un directorio en 0o200. En Windows no se
+    nota, porque chmod solo conmuta el atributo de solo lectura; en Linux y macOS el
+    directorio deja de poder recorrerse y `rmtree` falla justo en el caso que se
+    intentaba resolver.
+    """
+    directorio = tmp_path / "solo-lectura"
+    directorio.mkdir()
+    (directorio / "dentro.txt").write_text("x", encoding="utf-8")
+    directorio.chmod(0o500)  # r-x: lectura y busqueda, sin escritura
+
+    bd._permitir_escritura(directorio)
+
+    modo = directorio.stat().st_mode
+    assert modo & stat.S_IWUSR, "no se concedio el permiso de escritura"
+    assert modo & stat.S_IXUSR, "se perdio el permiso de busqueda del directorio"
+    assert list(directorio.iterdir()), "el directorio dejo de poder recorrerse"
 
 
 def test_reset_directory_aborts_instead_of_packaging_a_dirty_stage(tmp_path, monkeypatch):
