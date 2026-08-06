@@ -35,6 +35,11 @@ las seis skills, los esquemas, los presets y los ejemplos son idénticos.
   skills ya no describen rutas (`src/`, `schemas/`, `tests/`, `adapters/`…) que no contienen.
 - **Documentación**: se elimina la referencia a una carpeta `mcp/` inexistente; el servidor
   está en `src/ai_image_studio/mcp_server.py`.
+- **Rendimiento del conteo de componentes**: `masks._components()` indexaba el array de
+  numpy píxel a píxel y barría también el fondo desde Python. Ahora recorre índices planos
+  sobre secuencias nativas y solo visita el primer plano. Sobre una máscara de producto de
+  1000×1000 baja de 0,36 s a 0,08 s, y en el caso patológico de fondo completo de 1,68 s a
+  0,58 s. Resultado idéntico, verificado contra la implementación anterior en 1214 casos.
 - **Finales de línea**: todo el texto de los artefactos se normaliza a LF al empaquetar, y
   `SHA256SUMS.txt` se escribe siempre con LF. Antes solo se normalizaban los `.sh`, así que un
   árbol de trabajo Windows producía ZIP con hashes distintos a los de un árbol Linux: los
@@ -102,7 +107,7 @@ las seis skills, los esquemas, los presets y los ejemplos son idénticos.
 - `scripts/validate_artifacts.py`, que valida los ZIP como productos independientes:
   estructura, manifiestos, JSON UTF-8, README correspondiente, ausencia de material privado,
   igualdad byte a byte de las seis skills y coincidencia de SHA-256.
-- Suite de pruebas ampliada de 29 a 210 casos.
+- Suite de pruebas ampliada de 29 a 214 casos.
 - CI en Windows, Linux y macOS, con validación de artefactos, de los manifiestos de Claude
   Code y del comportamiento real del instalador en PowerShell, incluidos los destinos
   globales `claude` y `codex` sobre un perfil aislado cuyo aislamiento se comprueba antes de

@@ -72,6 +72,36 @@ def test_stats_count_separate_components():
     assert mask_stats(mask)["components"] == 2
 
 
+# El conteo de componentes se reescribio por rendimiento. Estas tres pruebas fijan la
+# semantica exacta que debe conservar cualquier futura optimizacion.
+
+def test_components_use_four_connectivity_not_eight():
+    """Una diagonal son pixeles sueltos, no una sola pieza.
+
+    Con 8 vecinos daria 1 componente; con 4, ninguno llega al minimo de 4 pixeles.
+    """
+    diagonal = np.zeros((20, 20), dtype=bool)
+    for i in range(20):
+        diagonal[i, i] = True
+    assert mask_stats(diagonal)["components"] == 0
+
+
+def test_components_below_the_minimum_size_are_ignored():
+    """El umbral existe para que el ruido de matting no cuente como pieza."""
+    mask = np.zeros((20, 20), dtype=bool)
+    mask[1, 1] = True            # 1 pixel: ruido
+    mask[5:7, 5:7] = True        # 4 pixeles: pieza valida
+    assert mask_stats(mask)["components"] == 1
+
+
+def test_components_span_rows_and_columns():
+    """Una forma en L es una sola pieza aunque cambie de direccion."""
+    ele = np.zeros((20, 20), dtype=bool)
+    ele[2:15, 2:4] = True
+    ele[13:15, 2:15] = True
+    assert mask_stats(ele)["components"] == 1
+
+
 def test_an_empty_mask_reports_no_bounding_box():
     stats = mask_stats(np.zeros((10, 10), dtype=bool))
     assert stats["bbox"] is None
