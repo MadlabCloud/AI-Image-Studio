@@ -29,7 +29,7 @@ def _mcp_check(report):
 
 def test_doctor_reports_ready(tmp_path):
     report = system_doctor(str(tmp_path / "workspace"))
-    assert report["ai_image_studio_version"] == "0.5.1"
+    assert report["ai_image_studio_version"] == "0.5.2"
     assert any(
         check["name"] == "Workspace escribible" and check["status"] == "PASS"
         for check in report["checks"]

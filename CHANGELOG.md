@@ -1,6 +1,9 @@
 # Changelog
 
-## Sin publicar
+## 0.5.2 - 2026-08-06
+
+Corrige el último punto que impedía reproducir desde el código los artefactos publicados.
+No hay cambios funcionales.
 
 ### Corregido
 
