@@ -124,7 +124,7 @@ def build_server():
 
     @mcp.tool()
     def image_compare_pixels(reference: str, result: str, mask: str | None = None) -> dict:
-        """Compara píxeles de referencia y resultado ya alineados; opcionalmente restringe la medición a una máscara."""
+        """Compara píxeles de referencia y resultado ya alineados y devuelve métricas globales y locales; opcionalmente restringe la medición a una máscara. Las medias globales ocultan un defecto pequeño en área pero destructivo: usa max_absolute_error, changed_pixel_ratio y el bloque local."""
         return compare_pixels(_guard(reference), _guard(result), _guard(mask) if mask else None)
 
     @mcp.tool()

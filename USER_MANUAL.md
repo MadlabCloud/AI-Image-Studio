@@ -1,6 +1,6 @@
 # Manual de Usuario — AI Image Studio
 
-Versión 0.5.2 · Revisión 2026-08-06
+Versión 0.6.0 · Revisión 2026-08-06
 
 ## 1. Qué es
 

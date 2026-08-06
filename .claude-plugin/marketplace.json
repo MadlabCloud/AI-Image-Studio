@@ -9,7 +9,7 @@
       "name": "ai-image-studio",
       "source": "./",
       "description": "Edición de imágenes con fidelidad y puertas de calidad",
-      "version": "0.5.2"
+      "version": "0.6.0"
     }
   ]
 }
