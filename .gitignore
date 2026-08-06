@@ -31,29 +31,36 @@ artifacts/
 ai-image-studio.config.json
 *.local.json
 
-# Private client profiles and photography assets
+# Private client profiles and photography assets.
+# Las clases de caracteres son deliberadas: las camaras escriben la extension en
+# mayusculas (IMG_1347.JPG, DSC_0001.NEF) y en Linux o macOS `*.jpg` NO casa con
+# `.JPG`, asi que una foto personal quedaria sin ignorar. Windows lo disimula por
+# ser insensible a mayusculas, lo que hace el fallo dificil de ver desde aqui.
 private/
 client-profiles/
-*.cr2
-*.cr3
-*.nef
-*.arw
-*.dng
-*.raf
-*.orf
-*.rw2
-*.heic
-*.tif
-*.tiff
-*.psd
-*.xcf
+*.[cC][rR]2
+*.[cC][rR]3
+*.[nN][eE][fF]
+*.[aA][rR][wW]
+*.[dD][nN][gG]
+*.[rR][aA][fF]
+*.[oO][rR][fF]
+*.[rR][wW]2
+*.[hH][eE][iI][cC]
+*.[tT][iI][fF]
+*.[tT][iI][fF][fF]
+*.[pP][sS][dD]
+*.[xX][cC][fF]
 
 # Large media should not enter source control by default
-*.jpg
-*.jpeg
-*.png
-*.webp
-*.avif
+*.[jJ][pP][gG]
+*.[jJ][pP][eE][gG]
+*.[pP][nN][gG]
+*.[wW][eE][bB][pP]
+*.[aA][vV][iI][fF]
+# Las excepciones se mantienen en minusculas a proposito: es la direccion segura.
+# Un asset legitimo llamado LOGO.PNG requerira `git add -f`, mientras que una foto
+# personal en mayusculas seguira quedando fuera.
 !assets/**/*.png
 !assets/**/*.jpg
 !assets/**/*.jpeg
@@ -61,6 +68,11 @@ client-profiles/
 !docs/**/*.jpg
 !tests/fixtures/**/*.png
 !tests/fixtures/**/*.jpg
+
+# Internal working documents: audit/validation reports. They are not product
+# documentation and must not travel inside a distribution artifact. Listed one by
+# one on purpose: a wildcard here could silently hide legitimate documentation.
+/INFORME-CORRECCION-v0.5.1.md
 
 # Editors and operating systems
 .vscode/

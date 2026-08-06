@@ -20,10 +20,12 @@ La regla principal es **fail closed**: si una puerta crítica falla o no hay evi
 - `src/ai_image_studio/`: CLI y lógica determinista.
 - `schemas/`: contratos JSON Schema 2020-12.
 - `presets/`: configuraciones versionadas.
-- `mcp/`: servidor MCP local opcional.
+- `src/ai_image_studio/mcp_server.py`: servidor MCP local opcional (ver `docs/MCP_SETUP.md`).
 - `tests/`: pruebas unitarias y de integración.
 - `evals/`: casos de activación y comportamiento.
 - `adapters/`: instalación para Claude Code y Codex/ChatGPT.
+- `packaging/`: README específico de cada artefacto de distribución.
+- `scripts/`: construcción de artefactos, checksums y validación del bundle.
 
 ## Modelo de Decisión Universal
 
@@ -86,5 +88,7 @@ Para Cowork, las skills deben habilitarse en la cuenta de Claude o distribuirse 
 Este proyecto no promete que un modelo generativo cometa cero errores. Su diseño busca **cero defectos críticos no detectados**, mediante validación, bloqueo de transiciones, trazabilidad y revisión humana en casos dudosos.
 
 ## Estado
+
+Versión `0.5.1`: versión correctiva de distribución. Limita el extra `mcp` a un intervalo verificado, hace real el diagnóstico MCP de `doctor`, publica el marketplace instalable de Codex, da a cada artefacto su propio README y añade protecciones al instalador de skills y al empaquetado. El núcleo funcional no cambia.
 
 Versión `0.5.0`: añade distribución oficial desde GitHub, CI, seguridad, instaladores y Releases verificadas.

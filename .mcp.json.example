@@ -1,11 +1,8 @@
 {
   "mcpServers": {
     "ai-image-studio": {
-      "command": "python",
-      "args": [
-        "-m",
-        "ai_image_studio.mcp_server"
-      ],
+      "command": "ai-image-studio-mcp",
+      "args": [],
       "env": {
         "AI_IMAGE_STUDIO_MCP_TRANSPORT": "stdio"
       }

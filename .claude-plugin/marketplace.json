@@ -3,12 +3,13 @@
   "owner": {
     "name": "AI Image Studio"
   },
+  "description": "Marketplace oficial de AI Image Studio: seis skills portables para admisión de imágenes, guía de captura, pipeline de producto, puertas de calidad y empaquetado de exportación.",
   "plugins": [
     {
       "name": "ai-image-studio",
-      "source": ".",
+      "source": "./",
       "description": "Edición de imágenes con fidelidad y puertas de calidad",
-      "version": "0.5.0"
+      "version": "0.5.1"
     }
   ]
 }

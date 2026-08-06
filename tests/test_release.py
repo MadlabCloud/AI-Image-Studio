@@ -1,7 +1,10 @@
 from pathlib import Path
 import hashlib
+import shutil
 import subprocess
 import sys
+
+import pytest
 
 try:
     import tomllib
@@ -27,8 +30,51 @@ def test_checksum_generator(tmp_path):
     assert line == f"{expected}  artifact.zip"
 
 
-def test_github_release_assets_are_ignored_from_source_control():
-    gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
-    assert "dist/" in gitignore
-    assert "*.cr2" in gitignore
-    assert ".env" in gitignore
+IGNORED_EXAMPLES = [
+    "dist/ai-image-studio-full-0.0.0.zip",
+    ".env",
+    ".env.local",
+    # Mayusculas incluidas a proposito: las camaras escriben asi la extension y en
+    # Linux o macOS `*.jpg` NO casa con `.JPG`. Comprobarlo por comportamiento y no
+    # por subcadena es lo que detecta ese hueco.
+    "IMG_1347.JPG",
+    "IMG_1347.jpg",
+    "DSC_0001.NEF",
+    "captura.PNG",
+    "raw.CR2",
+    "escaneo.TIFF",
+]
+ALLOWED_EXAMPLES = [
+    "README.md",
+    "src/ai_image_studio/cli.py",
+    "assets/logo.png",
+    "docs/captura.png",
+    "tests/fixtures/muestra.jpg",
+]
+
+
+def _is_ignored(relative: str) -> bool:
+    """git check-ignore sale 0 si la ruta esta excluida y 1 si no lo esta.
+
+    ``core.ignoreCase=false`` fuerza la semantica de un sistema de archivos sensible
+    a mayusculas. Sin esta anulacion, Windows daria por buena una regla `*.jpg` que
+    en Linux no casa con `IMG_1347.JPG`, y la prueba no detectaria el hueco.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(ROOT), "-c", "core.ignoreCase=false",
+         "check-ignore", "-q", relative],
+        capture_output=True,
+    )
+    return result.returncode == 0
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="requiere git")
+@pytest.mark.parametrize("relative", IGNORED_EXAMPLES)
+def test_release_assets_and_private_media_are_ignored(relative):
+    assert _is_ignored(relative), f"{relative} deberia estar excluido por .gitignore"
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="requiere git")
+@pytest.mark.parametrize("relative", ALLOWED_EXAMPLES)
+def test_project_files_are_not_ignored(relative):
+    assert not _is_ignored(relative), f"{relative} no deberia estar excluido"

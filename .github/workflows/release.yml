@@ -9,7 +9,62 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  # Los artefactos se construyen y se validan como productos independientes ANTES
+  # de publicar nada. Si alguna comprobacion falla, no se crea la Release.
+  verify:
+    name: Verificar artefactos (${{ matrix.os }})
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev,mcp]"
+
+      - name: Comprobar que MCP resolvio a una version compatible
+        shell: bash
+        run: |
+          python -c "
+          from importlib.metadata import version
+          v = version('mcp')
+          major, minor = (int(p) for p in v.split('.')[:2])
+          assert major == 1 and minor >= 14, f'mcp {v} fuera del intervalo soportado'
+          print(f'mcp {v}: correcto')
+          "
+
+      - name: Construir el servidor MCP
+        run: python -c "from ai_image_studio.mcp_server import build_server; build_server(); print('servidor MCP OK')"
+
+      - name: doctor
+        shell: bash
+        run: |
+          ai-image-studio doctor > doctor.json
+          python -c "
+          import json
+          d = json.load(open('doctor.json'))
+          assert d['ready'] is True and d['mcp']['state'] == 'ok', d
+          print('doctor OK')
+          "
+
+      - run: pytest
+      - run: python scripts/validate_bundle.py
+      - run: python -m compileall -q src skills scripts
+      - run: python scripts/build_distributions.py
+      - run: python scripts/generate_checksums.py dist
+      - name: Validar los cuatro ZIP publicables
+        env:
+          AI_IMAGE_STUDIO_PRIVATE_TERMS: ${{ vars.AI_IMAGE_STUDIO_PRIVATE_TERMS }}
+        run: python scripts/validate_artifacts.py dist
+
+  publish:
+    name: Publicar Release
+    needs: verify
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -19,17 +74,23 @@ jobs:
           cache: pip
       - run: python -m pip install --upgrade pip
       - run: pip install -e ".[dev,mcp]"
-      - run: pytest
-      - run: python scripts/validate_bundle.py
-      - run: python -m compileall -q src skills scripts
-      - name: Verify tag matches package version
+
+      - name: La etiqueta debe coincidir con la version del paquete
         shell: bash
         run: |
           VERSION=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml","rb"))["project"]["version"])')
-          test "v$VERSION" = "${GITHUB_REF_NAME}"
+          test "v$VERSION" = "${GITHUB_REF_NAME}" || {
+            echo "La etiqueta ${GITHUB_REF_NAME} no coincide con la version $VERSION"; exit 1; }
+
+      - run: pytest
       - run: python scripts/build_distributions.py
+        env:
+          AI_IMAGE_STUDIO_PRIVATE_TERMS: ${{ vars.AI_IMAGE_STUDIO_PRIVATE_TERMS }}
       - run: python scripts/generate_checksums.py dist
-      - name: Create GitHub Release
+      - name: Validacion final de artefactos
+        run: python scripts/validate_artifacts.py dist
+
+      - name: Crear la Release en GitHub
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
