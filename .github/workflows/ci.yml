@@ -206,47 +206,73 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Instalacion limpia
+
+      # Todos los casos de destino de proyecto en un unico paso, y el instalador
+      # invocado SIEMPRE como proceso hijo.
+      #
+      # Dos motivos, los dos aprendidos a base de fallos:
+      #
+      # 1. Llamarlo en linea (`.\adapters\install-skills.ps1`) hace depender la
+      #    comprobacion de como propaga `exit` un script anidado dentro del `-command
+      #    ". 'paso.ps1'"` con que el runner ejecuta cada paso. En el runner eso
+      #    terminaba el proceso con codigo 1 antes de llegar a la comprobacion, asi
+      #    que el paso fallaba sin decir por que. Como proceso hijo, el codigo de
+      #    salida es inequivoco, y ademas es como lo ejecuta un usuario real.
+      # 2. Con un paso por caso, el primer fallo saltaba los cinco restantes y una
+      #    ejecucion no decia nada del resto. Ahora se ejecutan todos y se informa de
+      #    cada uno.
+      - name: Destinos de proyecto
         shell: pwsh
         run: |
-          .\adapters\install-skills.ps1 -Target project-claude -ProjectRoot "$env:RUNNER_TEMP\proyecto"
-          if ($LASTEXITCODE -ne 0) { throw "instalacion limpia fallida ($LASTEXITCODE)" }
-          $n = (Get-ChildItem "$env:RUNNER_TEMP\proyecto\.claude\skills" -Directory).Count
-          if ($n -ne 6) { throw "se esperaban 6 skills, hay $n" }
-      - name: Sin -Force no se sustituye nada
-        shell: pwsh
-        run: |
-          $dest = "$env:RUNNER_TEMP\proyecto\.claude\skills"
-          $marca = "$dest\image-intake-router\DEL_USUARIO.txt"
+          $proyecto = Join-Path $env:RUNNER_TEMP "proyecto"
+          $dest = Join-Path $proyecto ".claude\skills"
+          $marca = Join-Path $dest "image-intake-router\DEL_USUARIO.txt"
+          $fallos = 0
+
+          function Instalar {
+            param([string[]]$Argumentos)
+            $p = Start-Process -FilePath "pwsh" -PassThru -Wait -NoNewWindow -ArgumentList (
+              @("-NoProfile", "-NonInteractive", "-File", ".\adapters\install-skills.ps1") + $Argumentos)
+            return $p.ExitCode
+          }
+          function Comprobar {
+            param([string]$Nombre, [bool]$Condicion, [string]$Detalle)
+            if ($Condicion) { Write-Host "PASS  $Nombre  ($Detalle)" }
+            else { Write-Host "FAIL  $Nombre  ($Detalle)"; $script:fallos++ }
+          }
+
+          $c = Instalar @("-Target", "project-claude", "-ProjectRoot", $proyecto)
+          $n = if (Test-Path $dest) { (Get-ChildItem $dest -Directory).Count } else { 0 }
+          Comprobar "instalacion limpia" (($c -eq 0) -and ($n -eq 6)) "exit=$c skills=$n"
+
           Set-Content -Path $marca -Value "contenido del usuario"
-          .\adapters\install-skills.ps1 -Target project-claude -ProjectRoot "$env:RUNNER_TEMP\proyecto"
-          if ($LASTEXITCODE -ne 3) { throw "se esperaba codigo 3, se obtuvo $LASTEXITCODE" }
-          if (-not (Test-Path $marca)) { throw "se borro contenido del usuario sin -Force" }
-      - name: -WhatIf no escribe
-        shell: pwsh
-        run: |
-          $dest = "$env:RUNNER_TEMP\proyecto\.claude\skills"
+          $c = Instalar @("-Target", "project-claude", "-ProjectRoot", $proyecto)
+          $vive = Test-Path $marca
+          Comprobar "sin -Force: codigo 3 y no sustituye" (($c -eq 3) -and $vive) "exit=$c archivo_intacto=$vive"
+
           $antes = (Get-ChildItem $dest -Recurse -File).Count
-          .\adapters\install-skills.ps1 -Target project-claude -ProjectRoot "$env:RUNNER_TEMP\proyecto" -Force -WhatIf
+          $c = Instalar @("-Target", "project-claude", "-ProjectRoot", $proyecto, "-Force", "-WhatIf")
           $despues = (Get-ChildItem $dest -Recurse -File).Count
-          if ($antes -ne $despues) { throw "-WhatIf modifico el destino" }
-      - name: -Force sustituye y crea copia de seguridad
-        shell: pwsh
-        run: |
-          $dest = "$env:RUNNER_TEMP\proyecto\.claude\skills"
-          .\adapters\install-skills.ps1 -Target project-claude -ProjectRoot "$env:RUNNER_TEMP\proyecto" -Force
-          if ($LASTEXITCODE -ne 0) { throw "-Force fallo ($LASTEXITCODE)" }
-          $copia = Get-ChildItem "$dest\.ai-image-studio-backup" -Directory | Select-Object -Last 1
-          if (-not $copia) { throw "-Force no creo copia de seguridad" }
-          $guardado = Join-Path $copia.FullName "image-intake-router\DEL_USUARIO.txt"
-          if (-not (Test-Path $guardado)) { throw "la copia no conserva el contenido sustituido" }
-      - name: Argumentos invalidos devuelven codigo 2, igual que install-skills.sh
-        shell: pwsh
-        run: |
-          .\adapters\install-skills.ps1 -Target destino-inventado 2>$null
-          if ($LASTEXITCODE -ne 2) { throw "destino invalido: se esperaba 2, se obtuvo $LASTEXITCODE" }
-          .\adapters\install-skills.ps1 2>$null
-          if ($LASTEXITCODE -ne 2) { throw "sin -Target: se esperaba 2, se obtuvo $LASTEXITCODE" }
+          Comprobar "-WhatIf no escribe" ($antes -eq $despues) "exit=$c antes=$antes despues=$despues"
+
+          $c = Instalar @("-Target", "project-claude", "-ProjectRoot", $proyecto, "-Force")
+          $copia = Get-ChildItem (Join-Path $dest ".ai-image-studio-backup") -Directory -EA SilentlyContinue |
+                   Select-Object -Last 1
+          $guardado = if ($copia) { Test-Path (Join-Path $copia.FullName "image-intake-router\DEL_USUARIO.txt") } else { $false }
+          Comprobar "-Force respalda antes de sustituir" (($c -eq 0) -and $guardado) "exit=$c respaldo_con_el_archivo=$guardado"
+
+          $c = Instalar @("-Target", "project-codex", "-ProjectRoot", $proyecto)
+          $n = (Get-ChildItem (Join-Path $proyecto ".agents\skills") -Directory -EA SilentlyContinue).Count
+          Comprobar "destino project-codex" (($c -eq 0) -and ($n -eq 6)) "exit=$c skills=$n"
+
+          $c = Instalar @("-Target", "destino-inventado")
+          Comprobar "destino invalido devuelve 2" ($c -eq 2) "exit=$c"
+          $c = Instalar @()
+          Comprobar "sin -Target devuelve 2" ($c -eq 2) "exit=$c"
+
+          Write-Host ""
+          Write-Host "FALLOS: $fallos"
+          if ($fallos -gt 0) { exit 1 }
 
       # Los destinos globales escriben en $HOME. PowerShell fija $HOME al arrancar la
       # sesion a partir de USERPROFILE/HOMEDRIVE+HOMEPATH, asi que definir $env:HOME
@@ -268,9 +294,19 @@ jobs:
           if ($HOME -ne $perfil) {
             throw "sin aislamiento real de HOME no se ejecuta nada. `$HOME=$HOME, esperado=$perfil"
           }
+          $fallos = 0
           foreach ($caso in @(@("claude", ".claude\skills"), @("codex", ".agents\skills"))) {
-            .\adapters\install-skills.ps1 -Target $caso[0]
-            if ($LASTEXITCODE -ne 0) { throw "-Target $($caso[0]) fallo ($LASTEXITCODE)" }
-            $n = (Get-ChildItem (Join-Path $perfil $caso[1]) -Directory).Count
-            if ($n -ne 6) { throw "-Target $($caso[0]): se esperaban 6 skills, hay $n" }
+            # Proceso hijo, por el mismo motivo que en el paso anterior.
+            $p = Start-Process -FilePath "pwsh" -PassThru -Wait -NoNewWindow -ArgumentList @(
+              "-NoProfile", "-NonInteractive", "-File", ".\adapters\install-skills.ps1",
+              "-Target", $caso[0])
+            $n = (Get-ChildItem (Join-Path $perfil $caso[1]) -Directory -EA SilentlyContinue).Count
+            if (($p.ExitCode -eq 0) -and ($n -eq 6)) {
+              Write-Host "PASS  -Target $($caso[0])  (exit=$($p.ExitCode) skills=$n)"
+            } else {
+              Write-Host "FAIL  -Target $($caso[0])  (exit=$($p.ExitCode) skills=$n)"; $fallos++
+            }
           }
+          Write-Host ""
+          Write-Host "FALLOS: $fallos"
+          if ($fallos -gt 0) { exit 1 }
