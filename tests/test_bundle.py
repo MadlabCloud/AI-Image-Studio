@@ -1,5 +1,7 @@
+import json
+import re
 from pathlib import Path
-import json, re
+
 
 def test_skill_manifests():
     root=Path(__file__).resolve().parents[1]

@@ -1,8 +1,12 @@
 from __future__ import annotations
-from pathlib import Path
+
+import json
+import zipfile
 from datetime import datetime, timezone
-import zipfile, json
+from pathlib import Path
+
 from .hashing import sha256_file
+
 
 def package_directory(source_dir: str | Path, zip_path: str | Path, job_id: str = "unassigned") -> dict:
     src, dst = Path(source_dir), Path(zip_path)

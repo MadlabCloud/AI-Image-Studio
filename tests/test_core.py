@@ -1,13 +1,15 @@
-from pathlib import Path
 import zipfile
+
 import numpy as np
 from PIL import Image, ImageDraw
-from ai_image_studio.hashing import sha256_file, safe_filename
+
+from ai_image_studio.export import export_png, export_webp
+from ai_image_studio.hashing import safe_filename, sha256_file
 from ai_image_studio.inspect import inspect_file
 from ai_image_studio.masks import compare_mask_files
-from ai_image_studio.qc import validate_background, validate_dimensions
-from ai_image_studio.export import export_webp, export_png
 from ai_image_studio.packaging import package_directory
+from ai_image_studio.qc import validate_background, validate_dimensions
+
 
 def test_inspect_and_hash(tmp_path):
     p=tmp_path/'x.png'; Image.new('RGB',(20,10),'white').save(p)

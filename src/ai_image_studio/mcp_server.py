@@ -1,16 +1,24 @@
 from __future__ import annotations
+
 import os
 from pathlib import Path
+
+from . import __version__
+from .capture_guide import (
+    capture_request_gaps,
+    recommend_capture,
+    validate_capture_request,
+)
+from .decision import decision_gaps, route_decision, validate_decision
+from .doctor import system_doctor
+from .export import export_png, export_webp
 from .inspect import inspect_file
 from .jobs import prepare_job
-from .decision import validate_decision, decision_gaps, route_decision
-from .capture_guide import validate_capture_request, capture_request_gaps, recommend_capture
 from .masks import compare_mask_files
-from .qc import validate_background, validate_dimensions, compare_pixels
-from .export import export_webp, export_png
 from .packaging import package_directory
+from .qc import compare_pixels, validate_background, validate_dimensions
 from .user_config import validate_user_config
-from .doctor import system_doctor
+
 
 def _guard(path: str, output: bool = False) -> str:
     root = os.environ.get("AI_IMAGE_STUDIO_ALLOWED_ROOT")
@@ -22,12 +30,39 @@ def _guard(path: str, output: bool = False) -> str:
             raise ValueError(f"Ruta fuera de AI_IMAGE_STUDIO_ALLOWED_ROOT: {p}")
     return str(p)
 
+def _installed_mcp_version() -> str:
+    try:
+        from importlib.metadata import version
+
+        return version("mcp")
+    except Exception:  # pragma: no cover - metadata ausente o corrupta
+        return "desconocida"
+
 def build_server():
     try:
         from mcp.server.fastmcp import FastMCP
     except ImportError as exc:
-        raise RuntimeError("Instala el extra MCP: pip install -e '.[mcp]'") from exc
+        import importlib.util
+
+        if importlib.util.find_spec("mcp") is None:
+            raise RuntimeError(
+                "La capacidad MCP es opcional y no esta instalada. "
+                'Instalala con: pip install "ai-image-studio[mcp]"'
+            ) from exc
+        raise RuntimeError(
+            f"El paquete mcp {_installed_mcp_version()} esta instalado pero no expone "
+            "mcp.server.fastmcp, por lo que el servidor no puede arrancar. "
+            'Version compatible verificada: pip install "mcp>=1.14,<2". '
+            "Ejecuta 'ai-image-studio doctor' para el diagnostico completo."
+        ) from exc
     mcp=FastMCP("AI Image Studio")
+
+    # FastMCP no acepta `version`, pero el servidor de bajo nivel si. Sin esto queda
+    # en None y el handshake `initialize` devuelve la version del paquete mcp como si
+    # fuera la del producto: un cliente veria "1.29.0" en lugar de la de AI Image Studio.
+    low_level = getattr(mcp, "_mcp_server", None)
+    if low_level is not None and hasattr(low_level, "version"):
+        low_level.version = __version__
 
     @mcp.tool()
     def image_system_doctor(workspace: str | None = None) -> dict:
@@ -110,7 +145,20 @@ def build_server():
 
 def main():
     transport=os.environ.get('AI_IMAGE_STUDIO_MCP_TRANSPORT','stdio')
-    server=build_server()
+    try:
+        server=build_server()
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        # FastMCP importa pero la construccion falla (mcp 1.7-1.13 no resuelven las
+        # anotaciones diferidas). Sin esto el usuario solo veria un TypeError crudo.
+        raise RuntimeError(
+            f"El paquete mcp {_installed_mcp_version()} esta instalado y expone "
+            "mcp.server.fastmcp, pero el servidor no se puede construir: "
+            f"{type(exc).__name__}: {exc}. "
+            'Version compatible verificada: pip install "mcp>=1.14,<2". '
+            "Ejecuta 'ai-image-studio doctor' para el diagnostico completo."
+        ) from exc
     server.run(transport=transport)
 
 if __name__=='__main__': main()

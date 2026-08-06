@@ -31,7 +31,7 @@ Guiar al usuario de forma segura y verificable desde la instalación hasta el pr
 1. Identifica plataforma y sistema operativo.
 2. Selecciona ruta compatible en `references/platform-support.md`.
 3. Instala según `references/installation.md`.
-4. Crea configuración local mediante `ai-image-studio init-config`.
+4. Crea configuración local mediante `ai-image-studio init-config` y ajústala según `references/configuration.md`.
 5. Ejecuta `ai-image-studio validate-config` y `ai-image-studio doctor`.
 6. Completa el primer flujo de `references/first-use.md`.
 7. Enseña los flujos cotidianos desde `references/workflows.md`.

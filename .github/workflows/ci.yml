@@ -9,12 +9,40 @@ permissions:
   contents: read
 
 jobs:
+  # Analisis estatico. El conjunto de reglas esta acotado en pyproject.toml: busca
+  # defectos reales, no impone estilo.
+  lint:
+    name: ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: python -m ruff check .
+
+  # Suite de pruebas en los tres sistemas operativos y en todas las versiones
+  # de Python soportadas. Linux cubre la matriz completa; Windows y macOS
+  # cubren los extremos, que es donde aparecen las diferencias de plataforma.
   test:
+    name: Pruebas (${{ matrix.os }}, Python ${{ matrix.python-version }})
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest]
         python-version: ["3.10", "3.11", "3.12", "3.13"]
-    runs-on: ubuntu-latest
+        include:
+          - os: windows-latest
+            python-version: "3.10"
+          - os: windows-latest
+            python-version: "3.13"
+          - os: macos-latest
+            python-version: "3.10"
+          - os: macos-latest
+            python-version: "3.13"
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -23,13 +51,262 @@ jobs:
           cache: pip
       - run: python -m pip install --upgrade pip
       - run: pip install -e ".[dev,mcp]"
+
+      - name: Comprobar que MCP resolvio a una version compatible
+        shell: bash
+        run: |
+          python -c "
+          from importlib.metadata import version
+          v = version('mcp')
+          major, minor = (int(p) for p in v.split('.')[:2])
+          assert major == 1 and minor >= 14, f'mcp {v} fuera del intervalo soportado'
+          print(f'mcp {v}: dentro de >=1.14,<2')
+          "
+
+      - name: Importar FastMCP y construir el servidor MCP
+        run: |
+          python -c "
+          from mcp.server.fastmcp import FastMCP
+          from ai_image_studio.mcp_server import build_server
+          s = build_server()
+          print('servidor MCP construido con', len(s._tool_manager.list_tools()), 'herramientas')
+          "
+
+      # La salida va FUERA del repositorio: contiene rutas de la maquina y, si se
+      # escribe en el arbol, el escaneo de privacidad aborta despues la construccion
+      # de los artefactos y tumba la suite entera.
+      - name: doctor debe declarar la capacidad MCP operativa
+        shell: bash
+        run: |
+          ai-image-studio doctor > "$RUNNER_TEMP/doctor.json"
+          python -c "
+          import json, os
+          d = json.load(open(os.path.join(os.environ['RUNNER_TEMP'], 'doctor.json')))
+          assert d['mcp']['state'] == 'ok', d['mcp']
+          assert d['ready'] is True, d['critical_failures']
+          print('doctor: ready=True, mcp.state=ok')
+          "
+
       - run: pytest
       - run: python scripts/validate_bundle.py
       - run: python -m compileall -q src skills scripts
+
+  # doctor no puede declarar 'ready' cuando MCP esta instalado pero inservible.
+  mcp-incompatible:
+    name: doctor detecta MCP incompatible
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Instalar a la fuerza una version incompatible
+        run: pip install "mcp==2.0.0"
+      - name: doctor debe fallar con ready=false
+        run: |
+          ai-image-studio doctor > "$RUNNER_TEMP/doctor.json" || true
+          python -c "
+          import json, os
+          d = json.load(open(os.path.join(os.environ['RUNNER_TEMP'], 'doctor.json')))
+          assert d['mcp']['state'] == 'incompatible', d['mcp']
+          assert d['ready'] is False, 'ready no puede ser true con MCP inservible'
+          print('correcto: state=incompatible, ready=False')
+          "
+      - name: La suite debe fallar con una version incompatible
+        run: |
+          if pytest tests/test_mcp_dependency.py -q; then
+            echo "ERROR: las pruebas pasaron con mcp 2.0.0"; exit 1
+          fi
+          echo "correcto: la suite detecta la version incompatible"
+
+  # Los artefactos se validan como productos independientes, no solo el repositorio.
+  artifacts:
+    name: Artefactos (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev,mcp]"
       - run: python scripts/build_distributions.py
+        env:
+          # Terminos privados adicionales a vetar (nombres de clientes, etc.).
+          # Se define como variable del repositorio para no escribirlos aqui.
+          AI_IMAGE_STUDIO_PRIVATE_TERMS: ${{ vars.AI_IMAGE_STUDIO_PRIVATE_TERMS }}
       - run: python scripts/generate_checksums.py dist
+      - name: Validar los cuatro ZIP
+        env:
+          AI_IMAGE_STUDIO_PRIVATE_TERMS: ${{ vars.AI_IMAGE_STUDIO_PRIVATE_TERMS }}
+        run: python scripts/validate_artifacts.py dist
+      - name: Pruebas de artefactos y de instalador
+        run: pytest tests/test_artifacts.py tests/test_installer_safety.py -q
       - uses: actions/upload-artifact@v7
-        if: matrix.python-version == '3.12'
+        if: matrix.os == 'ubuntu-latest'
         with:
           name: distribution-preview
           path: dist/
+
+  # Validacion con la herramienta real de Claude Code. La instalacion puede fallar
+  # por causas ajenas al proyecto; en ese caso el paso se marca y la comprobacion
+  # estructural equivalente de validate_artifacts.py sigue siendo obligatoria.
+  claude-plugin:
+    name: claude plugin validate --strict
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - id: install
+        continue-on-error: true
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Validar manifiestos del repositorio
+        if: steps.install.outcome == 'success'
+        run: claude plugin validate . --strict
+      - name: Validar el artefacto extraido
+        if: steps.install.outcome == 'success'
+        run: |
+          sudo apt-get install -y unzip >/dev/null
+          python -m pip install --upgrade pip >/dev/null
+          pip install -e ".[dev]" >/dev/null
+          python scripts/build_distributions.py
+          mkdir -p /tmp/claude-artifact
+          unzip -q dist/ai-image-studio-claude-plugin-*.zip -d /tmp/claude-artifact
+          claude plugin validate /tmp/claude-artifact/ai-image-studio --strict
+      - name: Instalar y desinstalar en configuracion aislada
+        if: steps.install.outcome == 'success'
+        env:
+          CLAUDE_CONFIG_DIR: /tmp/claude-config-aislada
+        run: |
+          mkdir -p "$CLAUDE_CONFIG_DIR"
+          claude plugin marketplace add /tmp/claude-artifact/ai-image-studio
+          claude plugin install ai-image-studio@ai-image-studio-marketplace
+          claude plugin details ai-image-studio@ai-image-studio-marketplace | tee detalles.txt
+          grep -q "Skills (6)" detalles.txt || { echo "no se detectaron las seis skills"; exit 1; }
+          claude plugin uninstall ai-image-studio@ai-image-studio-marketplace
+          claude plugin marketplace remove ai-image-studio-marketplace
+          claude plugin list | grep -qi "No plugins installed" || { echo "rollback incompleto"; exit 1; }
+      - name: Aviso si la herramienta no pudo instalarse
+        if: steps.install.outcome != 'success'
+        run: |
+          echo "::warning::No se pudo instalar el CLI de Claude Code."
+          echo "::warning::La validacion estructural de scripts/validate_artifacts.py sigue cubriendo el manifiesto."
+
+  # Comportamiento real del instalador de skills en PowerShell.
+  installer-windows:
+    name: Instalador de skills (PowerShell)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Todos los casos de destino de proyecto en un unico paso, y el instalador
+      # invocado SIEMPRE como proceso hijo.
+      #
+      # Dos motivos, los dos aprendidos a base de fallos:
+      #
+      # 1. Llamarlo en linea (`.\adapters\install-skills.ps1`) hace depender la
+      #    comprobacion de como propaga `exit` un script anidado dentro del `-command
+      #    ". 'paso.ps1'"` con que el runner ejecuta cada paso. En el runner eso
+      #    terminaba el proceso con codigo 1 antes de llegar a la comprobacion, asi
+      #    que el paso fallaba sin decir por que. Como proceso hijo, el codigo de
+      #    salida es inequivoco, y ademas es como lo ejecuta un usuario real.
+      # 2. Con un paso por caso, el primer fallo saltaba los cinco restantes y una
+      #    ejecucion no decia nada del resto. Ahora se ejecutan todos y se informa de
+      #    cada uno.
+      - name: Destinos de proyecto
+        shell: pwsh
+        run: |
+          $proyecto = Join-Path $env:RUNNER_TEMP "proyecto"
+          $dest = Join-Path $proyecto ".claude\skills"
+          $marca = Join-Path $dest "image-intake-router\DEL_USUARIO.txt"
+          $fallos = 0
+
+          function Instalar {
+            param([string[]]$Argumentos)
+            $p = Start-Process -FilePath "pwsh" -PassThru -Wait -NoNewWindow -ArgumentList (
+              @("-NoProfile", "-NonInteractive", "-File", ".\adapters\install-skills.ps1") + $Argumentos)
+            return $p.ExitCode
+          }
+          function Comprobar {
+            param([string]$Nombre, [bool]$Condicion, [string]$Detalle)
+            if ($Condicion) { Write-Host "PASS  $Nombre  ($Detalle)" }
+            else { Write-Host "FAIL  $Nombre  ($Detalle)"; $script:fallos++ }
+          }
+
+          $c = Instalar @("-Target", "project-claude", "-ProjectRoot", $proyecto)
+          $n = if (Test-Path $dest) { (Get-ChildItem $dest -Directory).Count } else { 0 }
+          Comprobar "instalacion limpia" (($c -eq 0) -and ($n -eq 6)) "exit=$c skills=$n"
+
+          Set-Content -Path $marca -Value "contenido del usuario"
+          $c = Instalar @("-Target", "project-claude", "-ProjectRoot", $proyecto)
+          $vive = Test-Path $marca
+          Comprobar "sin -Force: codigo 3 y no sustituye" (($c -eq 3) -and $vive) "exit=$c archivo_intacto=$vive"
+
+          $antes = (Get-ChildItem $dest -Recurse -File).Count
+          $c = Instalar @("-Target", "project-claude", "-ProjectRoot", $proyecto, "-Force", "-WhatIf")
+          $despues = (Get-ChildItem $dest -Recurse -File).Count
+          Comprobar "-WhatIf no escribe" ($antes -eq $despues) "exit=$c antes=$antes despues=$despues"
+
+          $c = Instalar @("-Target", "project-claude", "-ProjectRoot", $proyecto, "-Force")
+          $copia = Get-ChildItem (Join-Path $dest ".ai-image-studio-backup") -Directory -EA SilentlyContinue |
+                   Select-Object -Last 1
+          $guardado = if ($copia) { Test-Path (Join-Path $copia.FullName "image-intake-router\DEL_USUARIO.txt") } else { $false }
+          Comprobar "-Force respalda antes de sustituir" (($c -eq 0) -and $guardado) "exit=$c respaldo_con_el_archivo=$guardado"
+
+          $c = Instalar @("-Target", "project-codex", "-ProjectRoot", $proyecto)
+          $n = (Get-ChildItem (Join-Path $proyecto ".agents\skills") -Directory -EA SilentlyContinue).Count
+          Comprobar "destino project-codex" (($c -eq 0) -and ($n -eq 6)) "exit=$c skills=$n"
+
+          $c = Instalar @("-Target", "destino-inventado")
+          Comprobar "destino invalido devuelve 2" ($c -eq 2) "exit=$c"
+          $c = Instalar @()
+          Comprobar "sin -Target devuelve 2" ($c -eq 2) "exit=$c"
+
+          Write-Host ""
+          Write-Host "FALLOS: $fallos"
+          if ($fallos -gt 0) { exit 1 }
+
+      # Los destinos globales escriben en $HOME. PowerShell fija $HOME al arrancar la
+      # sesion a partir de USERPROFILE/HOMEDRIVE+HOMEPATH, asi que definir $env:HOME
+      # dentro del script NO aisla nada: hay que preparar el entorno en un paso previo
+      # para que el proceso del paso siguiente arranque ya redirigido.
+      - name: Preparar un perfil aislado para los destinos globales
+        shell: pwsh
+        run: |
+          $perfil = Join-Path $env:RUNNER_TEMP "perfil-aislado"
+          New-Item -ItemType Directory -Force -Path $perfil | Out-Null
+          "USERPROFILE=$perfil"                        | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "HOMEDRIVE=$(Split-Path -Qualifier $perfil)" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+          "HOMEPATH=$(Split-Path -NoQualifier $perfil)" | Out-File -Append -Encoding utf8 $env:GITHUB_ENV
+
+      - name: Destinos globales claude y codex sobre el perfil aislado
+        shell: pwsh
+        run: |
+          $perfil = Join-Path $env:RUNNER_TEMP "perfil-aislado"
+          if ($HOME -ne $perfil) {
+            throw "sin aislamiento real de HOME no se ejecuta nada. `$HOME=$HOME, esperado=$perfil"
+          }
+          $fallos = 0
+          foreach ($caso in @(@("claude", ".claude\skills"), @("codex", ".agents\skills"))) {
+            # Proceso hijo, por el mismo motivo que en el paso anterior.
+            $p = Start-Process -FilePath "pwsh" -PassThru -Wait -NoNewWindow -ArgumentList @(
+              "-NoProfile", "-NonInteractive", "-File", ".\adapters\install-skills.ps1",
+              "-Target", $caso[0])
+            $n = (Get-ChildItem (Join-Path $perfil $caso[1]) -Directory -EA SilentlyContinue).Count
+            if (($p.ExitCode -eq 0) -and ($n -eq 6)) {
+              Write-Host "PASS  -Target $($caso[0])  (exit=$($p.ExitCode) skills=$n)"
+            } else {
+              Write-Host "FAIL  -Target $($caso[0])  (exit=$($p.ExitCode) skills=$n)"; $fallos++
+            }
+          }
+          Write-Host ""
+          Write-Host "FALLOS: $fallos"
+          if ($fallos -gt 0) { exit 1 }

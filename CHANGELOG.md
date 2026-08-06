@@ -1,5 +1,126 @@
 # Changelog
 
+## 0.5.1 - 2026-08-05
+
+Versión correctiva centrada en distribución. El núcleo funcional de 0.5.0 no cambia:
+las seis skills, los esquemas, los presets y los ejemplos son idénticos.
+
+### Corregido
+
+- **MCP**: el extra opcional se limita a `mcp>=1.14,<2`. La restricción anterior `mcp>=1.0`
+  permitía instalar mcp 2.x, que no expone `mcp.server.fastmcp` y dejaba el servidor
+  inservible. El límite inferior excluye además las versiones 1.7 a 1.13, en las que
+  construir el servidor falla con `TypeError` al resolver anotaciones diferidas.
+- **doctor**: ya no basta con que el paquete `mcp` esté instalado; ahora se comprueba que
+  `FastMCP` se importa y que el servidor se construye. Se distinguen los estados `absent`,
+  `incompatible`, `import_error`, `build_error` y `ok`, y `ready` pasa a `false` cuando una
+  capacidad declarada como instalada no puede funcionar.
+- **Servidor MCP**: el ejecutable `ai-image-studio-mcp` traduce también el fallo de
+  construcción a un mensaje accionable con el intervalo soportado, en lugar de mostrar el
+  `TypeError` en crudo. Además, el handshake `initialize` anuncia ahora la versión de
+  AI Image Studio; antes devolvía la del paquete `mcp` porque `FastMCP` no acepta `version`
+  y el servidor de bajo nivel quedaba en `None`.
+- **Configuración MCP**: `.mcp.json.example` usa el ejecutable `ai-image-studio-mcp` en lugar
+  del `python` global, que fallaba fuera del directorio del proyecto con
+  `No module named ai_image_studio`.
+- **Marketplace de Claude Code**: `source` pasa de `"."` a `"./"` y se añade la descripción
+  del marketplace que faltaba. `claude plugin validate --strict` ya pasa.
+- **Distribución para Codex**: el artefacto es ahora un marketplace instalable, con
+  `.agents/plugins/marketplace.json` y `plugins/ai-image-studio/`. Se renombra a
+  `ai-image-studio-codex-marketplace-<version>.zip`. Su directorio raíz pasa a llamarse
+  `ai-image-studio-codex/`: es el artefacto que más anida y su entrada más larga medía 132
+  caracteres, demasiado cerca del límite `MAX_PATH` de Windows; ahora mide 120. El nombre
+  del ZIP no cambia.
+- **README por artefacto**: cada ZIP incluye documentación propia. Los tres paquetes de
+  skills ya no describen rutas (`src/`, `schemas/`, `tests/`, `adapters/`…) que no contienen.
+- **Documentación**: se elimina la referencia a una carpeta `mcp/` inexistente; el servidor
+  está en `src/ai_image_studio/mcp_server.py`.
+- **Rendimiento del conteo de componentes**: `masks._components()` indexaba el array de
+  numpy píxel a píxel y barría también el fondo desde Python. Ahora recorre índices planos
+  sobre secuencias nativas y solo visita el primer plano. Sobre una máscara de producto de
+  1000×1000 baja de 0,36 s a 0,08 s, y en el caso patológico de fondo completo de 1,68 s a
+  0,58 s. Resultado idéntico, verificado contra la implementación anterior en 1214 casos.
+- **Finales de línea**: todo el texto de los artefactos se normaliza a LF al empaquetar, y
+  `SHA256SUMS.txt` se escribe siempre con LF. Antes solo se normalizaban los `.sh`, así que un
+  árbol de trabajo Windows producía ZIP con hashes distintos a los de un árbol Linux: los
+  SHA-256 publicados por CI no se podían reproducir en otra plataforma, y `sha256sum -c`
+  rechazaba un `SHA256SUMS.txt` generado en Windows. Los ZIP son ahora idénticos byte a byte
+  los construya Windows, Linux o macOS.
+
+### Seguridad
+
+- **Instalador de skills**: deja de sustituir skills existentes en silencio. Sin
+  `-Force` / `--force` se detiene con código 3 y no escribe nada; con `-Force` crea una copia
+  de seguridad con marca de tiempo antes de sustituir. Se añaden `-WhatIf` / `--dry-run`,
+  `--no-backup`, `--backup-root` y códigos de salida documentados.
+- **Códigos de salida del instalador PowerShell**: los códigos 2 y 4 eran inalcanzables.
+  `Write-Error` es terminante con `$ErrorActionPreference = "Stop"` y mataba el script antes
+  de su `exit`, devolviendo siempre 1; y `[ValidateSet]` rechazaba un `-Target` inválido desde
+  el enlazador de parámetros, también con 1. Ahora `install-skills.ps1` valida el destino en
+  el cuerpo y escribe a stderr sin lanzar, de modo que devuelve los mismos códigos que
+  `install-skills.sh`: 0, 2, 3 y 4.
+- **`.gitignore`**: las reglas de imágenes y RAW pasan a clases de caracteres
+  (`*.[jJ][pP][gG]`). Las cámaras escriben la extensión en mayúsculas y, en sistemas de
+  archivos sensibles a mayúsculas, `*.jpg` no casaba con `IMG_1347.JPG`; Windows lo disimulaba.
+- **Empaquetado**: la selección de archivos respeta `.gitignore` y un escaneo de privacidad
+  aborta la construcción si detecta fotografías personales, archivos `.env`, RAW, claves o
+  rutas locales.
+- **Empaquetado (fail-closed)**: si el directorio de preparación conserva restos de una
+  construcción anterior, la construcción **aborta**. Antes solo avisaba, y un archivo ajeno
+  al repositorio podía viajar dentro del ZIP; reproducido en Windows sobre un árbol
+  sincronizado con la nube, donde las carpetas se vuelven marcadores de posición de solo
+  lectura que `rmtree` no puede borrar. Al conceder permiso de escritura se conserva el
+  resto del modo: asignarlo a secas dejaba un directorio POSIX en `0o200`, sin permiso de
+  búsqueda, y `rmtree` fallaba justo en el caso que se intentaba resolver.
+
+- **CLI**: cualquier error salía como traza de Python y todos compartían el código 1. Ahora
+  muestra un mensaje legible en stderr y distingue: **2** entrada inválida, **3** puerta
+  fail-closed, **4** entrada/salida, **1** fallo interno.
+- **JSON con BOM**: el CLI y la lectura de configuración aceptan UTF-8 con BOM. El Bloc de
+  notas y PowerShell lo escriben por defecto en Windows, y `json.loads` lo rechazaba, así que
+  guardar un `ImageJob` con el editor más común del sistema producía un error incomprensible.
+
+### Skills
+
+- Los tres scripts incluidos (`compare_masks.py`, `validate_background.py`, `export_webp.py`)
+  se enlazan ya desde su `SKILL.md` como alternativa sin MCP. Antes ninguna skill los
+  mencionaba, aunque su campo `compatibility` los prometía.
+- Esos scripts explican qué falta cuando el paquete `ai_image_studio` no está instalado, en
+  lugar de terminar con un `ModuleNotFoundError` pelado. Fuera del paquete Full la inserción
+  en `sys.path` no resuelve.
+- Se enlazan seis archivos de `references/` que existían, viajaban en los cuatro artefactos y
+  ninguna `SKILL.md` citaba.
+- `photographer-capture-guide` incorpora `agents/openai.yaml`, que era la única de las seis
+  sin declarar su interfaz para Codex y ChatGPT.
+
+### Añadido
+
+- `docs/MCP_SETUP.md` con la estrategia de configuración portable por sistema operativo y
+  una tabla de compatibilidad de versiones de MCP.
+- `ruff` como analizador estático, con un conjunto de reglas acotado en `pyproject.toml`,
+  target `lint` en el `Makefile` y job propio en CI. El `Makefile` declaraba `lint` en
+  `.PHONY` pero el target no existía.
+- Pruebas nuevas para las zonas que nunca tuvieron ninguna: estructura de las seis skills,
+  casos de activación de `evals/`, contrato de códigos de salida del CLI, comparación de
+  máscaras, reglas de privacidad de la configuración y resolución de modelos móviles.
+- Prueba que impide que `schemas/` y `src/ai_image_studio/schemas/` diverjan. Son copias
+  idénticas y el código solo carga la segunda; hasta ahora nada evitaba que la primera
+  quedase como documentación falsa.
+- `scripts/validate_artifacts.py`, que valida los ZIP como productos independientes:
+  estructura, manifiestos, JSON UTF-8, README correspondiente, ausencia de material privado,
+  igualdad byte a byte de las seis skills y coincidencia de SHA-256.
+- Suite de pruebas ampliada de 29 a 214 casos.
+- CI en Windows, Linux y macOS, con validación de artefactos, de los manifiestos de Claude
+  Code y del comportamiento real del instalador en PowerShell, incluidos los destinos
+  globales `claude` y `codex` sobre un perfil aislado cuyo aislamiento se comprueba antes de
+  escribir nada.
+
+### Sin cambios
+
+- El comportamiento de las seis skills no cambia: solo se enlaza documentación y scripts que
+  ya viajaban dentro de ellas. Los esquemas, los presets y los ejemplos no se modifican.
+- La etiqueta y los artefactos de v0.5.0 permanecen intactos.
+
 ## 0.5.0 - 2026-08-05
 
 - Prepara el repositorio canónico `MadlabCloud/AI-Image-Studio` para distribución mediante GitHub.

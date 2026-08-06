@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-image-studio"
-version = "0.5.0"
+version = "0.5.1"
 description = "Portable Agent Skills, deterministic image workflows, quality gates and MCP tooling"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -37,9 +37,14 @@ Changelog = "https://github.com/MadlabCloud/AI-Image-Studio/blob/main/CHANGELOG.
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0",
+  "ruff>=0.16",
   "tomli>=2.0; python_version < '3.11'"
 ]
-mcp = ["mcp>=1.0"]
+# Intervalo verificado empiricamente (ver tests/test_mcp_dependency.py):
+#   mcp < 1.2       no incluye mcp.server.fastmcp
+#   mcp 1.7 - 1.13  rompen build_server() (TypeError en Tool.from_function)
+#   mcp >= 2.0      elimina mcp.server.fastmcp
+mcp = ["mcp>=1.14,<2"]
 
 [project.scripts]
 ai-image-studio = "ai_image_studio.cli:main"
@@ -51,6 +56,34 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[tool.ruff]
+target-version = "py310"
+extend-exclude = ["dist", ".build-dist", ".venv"]
+
+[tool.ruff.lint]
+# Conjunto deliberadamente corto. Se busca detectar defectos reales -- nombres sin
+# definir, importaciones muertas, trampas conocidas -- no imponer un estilo. Las
+# reglas de opinion (BLE, S, PLW, FURB, SIM) quedan fuera a proposito: sus avisos
+# aqui eran sobre capturas defensivas y llamadas a subprocess intencionadas, y
+# silenciarlas una a una con `noqa` habria ensuciado el codigo sin ganar nada.
+select = [
+  "E4",  # importaciones mal colocadas
+  "E7",  # comparaciones y sentencias sospechosas
+  "E9",  # errores de sintaxis y de entrada/salida
+  "F",   # pyflakes: nombres sin definir, importaciones sin usar
+  "I",   # orden de importaciones
+  "B",   # flake8-bugbear: trampas conocidas
+  "UP",  # pyupgrade: sintaxis obsoleta para la version soportada
+]
+ignore = [
+  # El proyecto usa un estilo denso de una sentencia por linea separada por `;` y
+  # `:` en cli.py, mcp_server.py, masks.py y validate_bundle.py. Son 105 avisos
+  # puramente tipograficos: reformatearlos produciria un diff enorme sin corregir
+  # ni un defecto. Se excluyen a conciencia, no por descuido.
+  "E701",  # multiple-statements-on-one-line (colon)
+  "E702",  # multiple-statements-on-one-line (semicolon)
+]
 
 [tool.setuptools.package-data]
 ai_image_studio = ["schemas/*.json", "data/*.json"]

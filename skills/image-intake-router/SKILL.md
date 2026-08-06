@@ -25,14 +25,14 @@ Convertir una petición ambigua en un `ImageJob` explícito antes de editar.
 # Flujo
 
 1. Usa `image_inspect` para cada archivo, si está disponible.
-2. Completa las siete variables de `references/universal-decision-model.md`.
+2. Completa las siete variables de `references/universal-decision-model.md`, partiendo de `references/universal-decision-template.json`.
 3. Usa `references/decision-matrix.md` y `references/question-policy.md` para preguntar solo lo necesario.
 4. Valida la decisión con `image_validate_decision`, si está disponible.
 5. Usa `image_route_decision` para seleccionar la ruta sin asumir cámara ni fondo.
 6. Define operaciones permitidas y prohibidas.
 7. Presenta un resumen breve de configuración.
 8. Solicita confirmación, salvo modo rápido.
-9. Genera un `ImageJob` que incluya el objeto `decision`.
+9. Genera un `ImageJob` a partir de `references/image-job-template.json`, incluyendo el objeto `decision`.
 10. Usa `image_prepare_job` para validar y preservar el original.
 
 # Respuesta previa a la edición

@@ -19,7 +19,7 @@ No exportes si el informe QC no tiene `overall: PASS` o no existe una aprobació
    - No impongas fondo blanco salvo que el perfil lo exija.
    - Usa `contain`, nunca `stretch`, salvo instrucción validada.
    - Elimina metadatos privados en derivados web.
-4. Usa `image_export_webp` o `image_export_png`.
+4. Usa `image_export_webp` o `image_export_png`. Sin MCP, usa `scripts/export_webp.py`.
 5. Usa `image_validate_output` sobre cada derivado.
 6. Calcula SHA-256.
 7. Crea ZIP mediante `image_package`.

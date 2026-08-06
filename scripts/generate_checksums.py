@@ -23,7 +23,10 @@ def main() -> None:
         raise SystemExit(f"Directory not found: {directory}")
     files = sorted(p for p in directory.iterdir() if p.is_file() and p.name != args.output)
     output = directory / args.output
-    output.write_text("".join(f"{sha256(path)}  {path.name}\n" for path in files), encoding="utf-8")
+    # LF explicito: `sha256sum -c` rechaza las lineas terminadas en CRLF, y el archivo
+    # debe ser identico lo genere Windows, Linux o macOS.
+    body = "".join(f"{sha256(path)}  {path.name}\n" for path in files)
+    output.write_bytes(body.encode("utf-8"))
     print(output)
 
 

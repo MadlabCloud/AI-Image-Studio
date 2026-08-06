@@ -1,11 +1,16 @@
 from __future__ import annotations
-from pathlib import Path
-from importlib.resources import files
+
+import json
+import shutil
 from datetime import datetime, timezone
-import json, shutil
+from importlib.resources import files
+from pathlib import Path
+
 from jsonschema import Draft202012Validator
-from .hashing import sha256_file, safe_filename
+
 from .decision import validate_decision
+from .errors import FailClosed
+from .hashing import safe_filename, sha256_file
 
 TRANSITIONS = {
     "RECEIVED": {"INSPECTED", "REJECTED"},
@@ -47,7 +52,7 @@ def validate_job(job: dict) -> None:
 
 def transition(current: str, target: str) -> None:
     if target not in TRANSITIONS.get(current, set()):
-        raise ValueError(f"Transición no permitida: {current} -> {target}")
+        raise FailClosed(f"Transición no permitida: {current} -> {target}")
 
 def prepare_job(job: dict, workspace: str | Path) -> dict:
     source = Path(job["source"]["path"])
@@ -56,11 +61,11 @@ def prepare_job(job: dict, workspace: str | Path) -> dict:
     actual_hash = sha256_file(source)
     supplied = job["source"].get("sha256")
     if supplied and supplied != actual_hash:
-        raise ValueError("El hash del original no coincide")
+        raise FailClosed("El hash del original no coincide")
     job["source"]["sha256"] = actual_hash
     validate_job(job)
     if job.get("status") != "SPEC_LOCKED" or job.get("confirmed") is not True:
-        raise ValueError("prepare_job exige status SPEC_LOCKED y confirmed=true")
+        raise FailClosed("prepare_job exige status SPEC_LOCKED y confirmed=true")
 
     ws = Path(workspace) / safe_filename(job["job_id"])
     originals = ws / "00_ORIGINALS"
@@ -72,7 +77,7 @@ def prepare_job(job: dict, workspace: str | Path) -> dict:
         shutil.copy2(source, dst)
     copied_hash = sha256_file(dst)
     if copied_hash != actual_hash:
-        raise IOError("La copia inmutable no conserva el hash")
+        raise OSError("La copia inmutable no conserva el hash")
 
     transition(job["status"], "SOURCE_PRESERVED")
     job["status"] = "SOURCE_PRESERVED"

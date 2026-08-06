@@ -1,3 +1,5 @@
 -r requirements.txt
 pytest>=8.0
-mcp>=1.0
+ruff>=0.16
+# Ver pyproject.toml [project.optional-dependencies].mcp para el porque del intervalo
+mcp>=1.14,<2
