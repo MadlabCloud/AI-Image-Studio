@@ -1,6 +1,6 @@
 {
   "name": "ai-image-studio",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Reliable image intake, strict product workflow, QC gates and export packaging",
   "skills": "./skills/"
 }

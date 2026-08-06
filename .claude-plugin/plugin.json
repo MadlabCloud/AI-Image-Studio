@@ -1,7 +1,7 @@
 {
   "name": "ai-image-studio",
   "description": "Flujo fiable de edición, control de calidad y exportación de imágenes",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": {
     "name": "AI Image Studio"
   },

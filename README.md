@@ -89,6 +89,8 @@ Este proyecto no promete que un modelo generativo cometa cero errores. Su diseñ
 
 ## Estado
 
+Versión `0.5.2`: fija el sistema de origen declarado en la cabecera de los ZIP. Sin ello, el mismo commit producía archivos con SHA-256 distintos según lo empaquetase Windows o Linux, pese a que su contenido era idéntico. Sin cambios funcionales.
+
 Versión `0.5.1`: versión correctiva de distribución. Limita el extra `mcp` a un intervalo verificado, hace real el diagnóstico MCP de `doctor`, publica el marketplace instalable de Codex, da a cada artefacto su propio README y añade protecciones al instalador de skills y al empaquetado. El núcleo funcional no cambia.
 
 Versión `0.5.0`: añade distribución oficial desde GitHub, CI, seguridad, instaladores y Releases verificadas.
