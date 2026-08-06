@@ -20,9 +20,14 @@ Garantias que aplica este script:
 *   **README por artefacto.** Cada paquete recibe el README de ``packaging/`` que le
     corresponde, nunca el README general del repositorio.
 *   **Reproducibilidad, tambien entre plataformas.** Marcas de tiempo fijas, orden
-    estable de entradas y finales de linea LF en todo el texto. El mismo commit
-    produce ZIP identicos byte a byte lo construya Windows, Linux o macOS, de modo
-    que cualquiera puede reproducir los SHA-256 publicados.
+    estable de entradas, finales de linea LF en todo el texto y sistema de origen
+    fijado en la cabecera. El mismo commit produce ZIP identicos byte a byte lo
+    construya Windows, Linux o macOS, de modo que cualquiera puede reproducir los
+    SHA-256 publicados.
+
+    Comprobarlo exige construir en sistemas *distintos*: convertir el arbol a LF y
+    volver a construir en la misma maquina no basta, porque deja fuera precisamente
+    los metadatos que dependen de la plataforma.
 """
 
 from __future__ import annotations
@@ -185,6 +190,14 @@ def assert_clean(base: Path, relatives: list[Path], label: str) -> None:
 
 # --------------------------------------------------------------------------- empaquetado
 
+# Sistema de origen declarado en la cabecera de cada entrada. `zipfile` lo deduce de
+# la plataforma que construye -- 0 (MS-DOS) en Windows, 3 (Unix) en POSIX -- y eso
+# basta para que el mismo arbol produzca archivos con hash distinto segun quien los
+# empaquete, aunque el contenido de las 138 entradas sea identico byte a byte. Se fija
+# a Unix, que es lo que espera cualquier consumidor POSIX de los `.sh` incluidos.
+CREATE_SYSTEM_UNIX = 3
+
+
 def write_zip(base: Path, relatives: list[Path], destination: Path, top_name: str) -> None:
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for rel in sorted(relatives, key=lambda p: p.as_posix()):
@@ -192,6 +205,7 @@ def write_zip(base: Path, relatives: list[Path], destination: Path, top_name: st
                 (Path(top_name) / rel).as_posix(), date_time=FIXED_TIMESTAMP
             )
             info.compress_type = zipfile.ZIP_DEFLATED
+            info.create_system = CREATE_SYSTEM_UNIX
             info.external_attr = 0o644 << 16
             archive.writestr(info, (base / rel).read_bytes())
 
