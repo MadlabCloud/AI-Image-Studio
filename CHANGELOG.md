@@ -1,5 +1,24 @@
 # Changelog
 
+## Sin publicar
+
+### Corregido
+
+- **Reproducibilidad entre plataformas**: los ZIP declaraban en la cabecera de cada entrada
+  el sistema que los había construido — `0` (MS-DOS) en Windows y `3` (Unix) en Linux y
+  macOS. Con el contenido de las entradas idéntico byte a byte, ese único campo bastaba
+  para que el mismo commit produjera SHA-256 distintos según quién empaquetase, así que los
+  hashes publicados por CI no se podían reproducir desde Windows. Se fija a Unix.
+
+  El defecto sobrevivió a la corrección de finales de línea de 0.5.1 porque se verificaba
+  convirtiendo el árbol a LF y reconstruyendo **en la misma máquina**, lo que deja fuera
+  precisamente los metadatos que dependen de la plataforma. Se añade una prueba que fija
+  `create_system`, las marcas de tiempo y los permisos de todas las entradas.
+
+  Los artefactos de la Release v0.5.1 no están afectados: son válidos y su
+  `SHA256SUMS.txt` se corresponde con ellos. Lo que no era posible es reconstruirlos desde
+  el código en un sistema distinto y obtener el mismo hash.
+
 ## 0.5.1 - 2026-08-05
 
 Versión correctiva centrada en distribución. El núcleo funcional de 0.5.0 no cambia:

@@ -319,6 +319,36 @@ import build_distributions as bd  # noqa: E402
 
 
 @pytest.mark.parametrize("label", sorted(ARTIFACTS))
+def test_zip_headers_do_not_depend_on_the_building_platform(built, label):
+    """Las cabeceras de cada entrada no pueden delatar quien construyo el ZIP.
+
+    `zipfile` deduce `create_system` de la plataforma: 0 (MS-DOS) en Windows y 3
+    (Unix) en Linux y macOS. Con el contenido de las entradas identico byte a byte,
+    ese unico campo bastaba para que el mismo commit diera SHA-256 distintos segun
+    quien empaquetara, de modo que los hashes publicados por CI no se podian
+    reproducir desde Windows.
+
+    Un detalle sobre como se detecto, porque condiciona esta prueba: convertir el
+    arbol a LF y volver a construir en la misma maquina NO lo revela, ya que ambas
+    construcciones comparten plataforma. Solo aparecio al comparar los artefactos
+    publicados por CI en Ubuntu con los generados en Windows.
+    """
+    archivo = ROOT / "dist" / ARTIFACTS[label]
+    with zipfile.ZipFile(archivo) as zf:
+        entradas = zf.infolist()
+        assert entradas, f"{ARTIFACTS[label]} esta vacio"
+        sistemas = {i.create_system for i in entradas}
+        assert sistemas == {3}, (
+            f"{ARTIFACTS[label]}: create_system deberia ser 3 (Unix) en todas las "
+            f"entradas, hay {sorted(sistemas)}"
+        )
+        fechas = {i.date_time for i in entradas}
+        assert fechas == {(2026, 1, 1, 0, 0, 0)}, f"marcas de tiempo no fijas: {sorted(fechas)}"
+        permisos = {i.external_attr >> 16 for i in entradas}
+        assert permisos == {0o644}, f"permisos no fijos: {[oct(p) for p in sorted(permisos)]}"
+
+
+@pytest.mark.parametrize("label", sorted(ARTIFACTS))
 def test_entry_paths_leave_room_under_windows_max_path(built, label):
     """Ningun ZIP puede acercarse al limite MAX_PATH de 260 caracteres.
 
