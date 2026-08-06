@@ -1,5 +1,8 @@
+import json
+import re
+import sys
 from pathlib import Path
-import re, sys, json
+
 ROOT=Path(__file__).resolve().parents[1]
 errors=[]
 for skill in sorted((ROOT/'skills').iterdir()):
@@ -37,8 +40,10 @@ for path in sorted(ROOT.rglob('*.json')):
 
 # --- Manifiestos de distribución --------------------------------------------------
 try:
-    try: import tomllib
-    except ModuleNotFoundError: import tomli as tomllib
+    try:
+        import tomllib
+    except ModuleNotFoundError:  # Python 3.10
+        import tomli as tomllib
     version = tomllib.loads((ROOT/'pyproject.toml').read_text(encoding='utf-8'))['project']['version']
 except Exception as e:  # pragma: no cover - pyproject ilegible
     version = None

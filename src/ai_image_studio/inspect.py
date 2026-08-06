@@ -1,8 +1,13 @@
 from __future__ import annotations
+
+import json
+import shutil
+import subprocess
 from pathlib import Path
 from typing import Any
-import shutil, subprocess, json
+
 from PIL import Image
+
 from .hashing import sha256_file
 
 RAW_EXTENSIONS = {".cr2", ".cr3", ".nef", ".arw", ".raf", ".rw2", ".orf", ".dng"}

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from importlib.resources import files
 import json
 import os
-from pathlib import Path
 import re
+from importlib.resources import files
+from pathlib import Path
+
 from jsonschema import Draft202012Validator
 
 ENV_NAME = re.compile(r"^[A-Z][A-Z0-9_]*$")
@@ -78,6 +79,7 @@ def write_default_user_config(destination: str, workspace_root: str | None = Non
 
 def read_and_validate_user_config(path: str) -> dict:
     source = Path(path).expanduser().resolve()
-    config = json.loads(source.read_text(encoding="utf-8"))
+    # utf-8-sig: acepta el BOM que escriben por defecto el Bloc de notas y PowerShell.
+    config = json.loads(source.read_text(encoding="utf-8-sig"))
     validate_user_config(config)
     return {"valid": True, "path": str(source), "config": config}

@@ -29,8 +29,10 @@ metadata:
 # Procedimiento
 
 1. Carga `references/gate-policy.md`.
-2. Ejecuta `image_validate_background` con máscara cuando exista.
-3. Ejecuta `image_compare_masks` si hay dos máscaras.
+2. Ejecuta `image_validate_background` con máscara cuando exista. Sin MCP, usa
+   `scripts/validate_background.py`.
+3. Ejecuta `image_compare_masks` si hay dos máscaras. Sin MCP, usa
+   `scripts/compare_masks.py`.
 4. Ejecuta `image_compare_pixels` solo sobre imágenes alineadas; no interpretes MAE/RMSE como prueba suficiente.
 5. Ejecuta `image_validate_output`.
 6. Realiza una revisión visual adversarial: busca motivos para rechazar.

@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import importlib.util
-import os
-from pathlib import Path
 import platform
 import shutil
 import sys
 import tempfile
+from pathlib import Path
 
 from . import __version__
 

@@ -3,4 +3,6 @@
 {"id": "strict-no-generation", "prompt": "No cambies ni un tornillo de este taburete", "should_trigger": ["product-image-pipeline"], "assertions": ["forbids_full_image_generation", "requires_qc"]}
 {"id": "qc", "prompt": "Compara la imagen editada con el original antes de publicarla", "should_trigger": ["image-quality-gates"], "assertions": ["uses_independent_gates", "fails_closed"]}
 {"id": "export-only", "prompt": "Estas imágenes ya están aprobadas; conviértelas a WebP 1000x1000 y crea un ZIP", "should_trigger": ["image-export-packager"], "assertions": ["preserves_aspect", "creates_manifest"]}
+{"id": "capture-guide", "prompt": "Voy a fotografiar mañana un taburete de terciopelo en casa. ¿Cómo configuro la cámara y la luz?", "should_trigger": ["photographer-capture-guide"], "assertions": ["does_not_assume_camera_model", "requires_test_shot", "asks_max_five_questions"]}
+{"id": "user-guide", "prompt": "¿Cómo instalo AI Image Studio en Windows con Claude Code y compruebo que funciona?", "should_trigger": ["ai-image-studio-user-guide"], "assertions": ["asks_platform_and_os", "runs_doctor", "does_not_store_keys_in_json"]}
 {"id": "should-not-trigger", "prompt": "Explícame qué es la distancia focal", "should_not_trigger": ["product-image-pipeline", "image-quality-gates"]}

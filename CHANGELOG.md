@@ -27,7 +27,10 @@ las seis skills, los esquemas, los presets y los ejemplos son idénticos.
   del marketplace que faltaba. `claude plugin validate --strict` ya pasa.
 - **Distribución para Codex**: el artefacto es ahora un marketplace instalable, con
   `.agents/plugins/marketplace.json` y `plugins/ai-image-studio/`. Se renombra a
-  `ai-image-studio-codex-marketplace-<version>.zip`.
+  `ai-image-studio-codex-marketplace-<version>.zip`. Su directorio raíz pasa a llamarse
+  `ai-image-studio-codex/`: es el artefacto que más anida y su entrada más larga medía 132
+  caracteres, demasiado cerca del límite `MAX_PATH` de Windows; ahora mide 120. El nombre
+  del ZIP no cambia.
 - **README por artefacto**: cada ZIP incluye documentación propia. Los tres paquetes de
   skills ya no describen rutas (`src/`, `schemas/`, `tests/`, `adapters/`…) que no contienen.
 - **Documentación**: se elimina la referencia a una carpeta `mcp/` inexistente; el servidor
@@ -63,14 +66,43 @@ las seis skills, los esquemas, los presets y los ejemplos son idénticos.
   sincronizado con la nube, donde las carpetas se vuelven marcadores de posición de solo
   lectura que `rmtree` no puede borrar.
 
+- **CLI**: cualquier error salía como traza de Python y todos compartían el código 1. Ahora
+  muestra un mensaje legible en stderr y distingue: **2** entrada inválida, **3** puerta
+  fail-closed, **4** entrada/salida, **1** fallo interno.
+- **JSON con BOM**: el CLI y la lectura de configuración aceptan UTF-8 con BOM. El Bloc de
+  notas y PowerShell lo escriben por defecto en Windows, y `json.loads` lo rechazaba, así que
+  guardar un `ImageJob` con el editor más común del sistema producía un error incomprensible.
+
+### Skills
+
+- Los tres scripts incluidos (`compare_masks.py`, `validate_background.py`, `export_webp.py`)
+  se enlazan ya desde su `SKILL.md` como alternativa sin MCP. Antes ninguna skill los
+  mencionaba, aunque su campo `compatibility` los prometía.
+- Esos scripts explican qué falta cuando el paquete `ai_image_studio` no está instalado, en
+  lugar de terminar con un `ModuleNotFoundError` pelado. Fuera del paquete Full la inserción
+  en `sys.path` no resuelve.
+- Se enlazan seis archivos de `references/` que existían, viajaban en los cuatro artefactos y
+  ninguna `SKILL.md` citaba.
+- `photographer-capture-guide` incorpora `agents/openai.yaml`, que era la única de las seis
+  sin declarar su interfaz para Codex y ChatGPT.
+
 ### Añadido
 
 - `docs/MCP_SETUP.md` con la estrategia de configuración portable por sistema operativo y
   una tabla de compatibilidad de versiones de MCP.
+- `ruff` como analizador estático, con un conjunto de reglas acotado en `pyproject.toml`,
+  target `lint` en el `Makefile` y job propio en CI. El `Makefile` declaraba `lint` en
+  `.PHONY` pero el target no existía.
+- Pruebas nuevas para las zonas que nunca tuvieron ninguna: estructura de las seis skills,
+  casos de activación de `evals/`, contrato de códigos de salida del CLI, comparación de
+  máscaras, reglas de privacidad de la configuración y resolución de modelos móviles.
+- Prueba que impide que `schemas/` y `src/ai_image_studio/schemas/` diverjan. Son copias
+  idénticas y el código solo carga la segunda; hasta ahora nada evitaba que la primera
+  quedase como documentación falsa.
 - `scripts/validate_artifacts.py`, que valida los ZIP como productos independientes:
   estructura, manifiestos, JSON UTF-8, README correspondiente, ausencia de material privado,
   igualdad byte a byte de las seis skills y coincidencia de SHA-256.
-- Suite de pruebas ampliada de 29 a 121 casos.
+- Suite de pruebas ampliada de 29 a 210 casos.
 - CI en Windows, Linux y macOS, con validación de artefactos, de los manifiestos de Claude
   Code y del comportamiento real del instalador en PowerShell, incluidos los destinos
   globales `claude` y `codex` sobre un perfil aislado cuyo aislamiento se comprueba antes de
@@ -78,7 +110,8 @@ las seis skills, los esquemas, los presets y los ejemplos son idénticos.
 
 ### Sin cambios
 
-- Las seis skills, los esquemas, los presets y los ejemplos no se modifican.
+- El comportamiento de las seis skills no cambia: solo se enlaza documentación y scripts que
+  ya viajaban dentro de ellas. Los esquemas, los presets y los ejemplos no se modifican.
 - La etiqueta y los artefactos de v0.5.0 permanecen intactos.
 
 ## 0.5.0 - 2026-08-05

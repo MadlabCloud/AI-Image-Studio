@@ -1,6 +1,11 @@
 import json
 from pathlib import Path
-from ai_image_studio.capture_guide import validate_capture_request, recommend_capture, resolve_mobile_support
+
+from ai_image_studio.capture_guide import (
+    recommend_capture,
+    resolve_mobile_support,
+    validate_capture_request,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 

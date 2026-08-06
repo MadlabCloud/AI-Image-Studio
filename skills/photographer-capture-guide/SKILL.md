@@ -17,7 +17,7 @@ Convertir una situación fotográfica en un plan de captura práctico, verificab
 2. Inspecciona metadatos cuando existan, pero no los inventes.
 3. Trata los valores ISO, apertura y velocidad como puntos de partida, no como exposición garantizada.
 4. Separa principios universales de pasos específicos del dispositivo.
-5. Para móviles, usa instrucciones específicas solo si el modelo pertenece a las dos generaciones registradas y la función está verificada para ese modelo.
+5. Para móviles, usa instrucciones específicas solo si el modelo pertenece a las dos generaciones registradas y la función está verificada para ese modelo; el alcance exacto está en `references/smartphone-support-policy.md`.
 6. Para otros móviles, ofrece guía genérica segura.
 7. El fondo ecommerce solo pertenece a la rama de producto y depende del canal o perfil del cliente.
 8. Para personas, bodas, viajes e interiores, el fondo y el ambiente se tratan según la categoría.
@@ -27,7 +27,7 @@ Convertir una situación fotográfica en un plan de captura práctico, verificab
 # Flujo
 
 1. Completa `references/capture-request-template.json`.
-2. Consulta `references/manual-architecture.md` y `references/capture-matrix.md`.
+2. Consulta `references/manual-architecture.md`, `references/capture-matrix.md` y `references/camera-universal-controls.md`.
 3. Valida con `image_validate_capture_request` cuando esté disponible.
 4. Genera el plan con `image_recommend_capture`.
 5. Adapta el nivel de explicación a principiante, intermedio o avanzado.

@@ -22,7 +22,7 @@ En `strict`, los píxeles del producto deben proceder de la fotografía original
 1. Inspecciona el original y su pareja RAW/JPEG, si existe.
 2. Si es RAW, usa un revelador real; no confundas la previsualización con revelado RAW.
 3. Guarda el revelado intermedio sin pérdida o con mínima pérdida.
-4. Obtén dos máscaras independientes cuando el producto tenga patas finas, huecos, metal, cristal o poco contraste.
+4. Obtén dos máscaras independientes cuando el producto tenga patas finas, huecos, metal, cristal o poco contraste. Consulta `references/materials.md` para los materiales que exigen tratamiento específico.
 5. Compara las máscaras con `image_compare_masks`.
 6. Si la discrepancia supera los límites de `references/quality-thresholds.md`, detente en `NEEDS_REVIEW`.
 7. Compón los píxeles originales sobre el fondo objetivo.

@@ -1,20 +1,83 @@
+"""Interfaz de linea de comandos.
+
+Codigos de salida, alineados con los instaladores de ``adapters/``:
+
+===  ==========================================================================
+0    correcto
+2    entrada invalida: archivo ausente, JSON mal formado, esquema incumplido
+3    puerta fail-closed: el trabajo es valido pero no puede continuar, por
+     ejemplo cuando el SHA-256 declarado no coincide con el original
+4    error de entrada/salida
+1    fallo interno no previsto; se muestra la traza completa
+===  ==========================================================================
+"""
 from __future__ import annotations
-import argparse, json
+
+import argparse
+import json
+import sys
 from pathlib import Path
+
+from .capture_guide import (
+    capture_request_gaps,
+    recommend_capture,
+    validate_capture_request,
+)
+from .decision import decision_gaps, route_decision, validate_decision
+from .doctor import system_doctor
+from .errors import FailClosed
+from .export import export_png, export_webp
 from .inspect import inspect_file
 from .jobs import prepare_job
-from .decision import validate_decision, decision_gaps, route_decision
-from .capture_guide import validate_capture_request, capture_request_gaps, recommend_capture
 from .masks import compare_mask_files
-from .qc import validate_background, validate_dimensions, compare_pixels
-from .export import export_webp, export_png
 from .packaging import package_directory
-from .user_config import write_default_user_config, read_and_validate_user_config
-from .doctor import system_doctor
+from .qc import compare_pixels, validate_background, validate_dimensions
+from .user_config import read_and_validate_user_config, write_default_user_config
+
+EXIT_OK = 0
+EXIT_INTERNAL = 1
+EXIT_BAD_INPUT = 2
+EXIT_FAIL_CLOSED = 3
+EXIT_IO = 4
 
 def emit(data): print(json.dumps(data, indent=2, ensure_ascii=False))
 
+def load_json(path: str):
+    """Lee un JSON del usuario.
+
+    ``utf-8-sig`` en lugar de ``utf-8``: el Bloc de notas y PowerShell escriben UTF-8
+    con BOM por defecto en Windows, y ``json.loads`` rechaza el BOM. Un archivo sin
+    BOM se lee igual, asi que la lectura es correcta en los dos casos.
+    """
+    return json.loads(Path(path).read_text(encoding="utf-8-sig"))
+
 def main():
+    """Punto de entrada. Traduce los fallos a codigos de salida y a un mensaje.
+
+    Sin esto, cualquier error del usuario salia como traza de Python y todos los
+    fallos compartian el codigo 1, de modo que no se podia distinguir un JSON mal
+    escrito de una puerta de integridad que se niega a continuar.
+    """
+    try:
+        _run()
+    # El orden importa: FailClosed y JSONDecodeError heredan de ValueError, y
+    # FileNotFoundError y FileExistsError heredan de OSError.
+    except FailClosed as exc:
+        _exit(EXIT_FAIL_CLOSED, f"puerta fail-closed: {exc}")
+    except (FileNotFoundError, FileExistsError) as exc:
+        _exit(EXIT_BAD_INPUT, f"entrada invalida: {exc}")
+    except json.JSONDecodeError as exc:
+        _exit(EXIT_BAD_INPUT, f"JSON mal formado: {exc}")
+    except ValueError as exc:
+        _exit(EXIT_BAD_INPUT, f"entrada invalida: {exc}")
+    except OSError as exc:
+        _exit(EXIT_IO, f"error de entrada/salida: {exc}")
+
+def _exit(code: int, message: str):
+    print(f"error: {message}", file=sys.stderr)
+    raise SystemExit(code)
+
+def _run():
     p=argparse.ArgumentParser(prog='ai-image-studio')
     sp=p.add_subparsers(dest='cmd',required=True)
     a=sp.add_parser('inspect'); a.add_argument('path')
@@ -38,13 +101,13 @@ def main():
     elif ns.cmd=='doctor': out=system_doctor(ns.workspace)
     elif ns.cmd=='init-config': out=write_default_user_config(ns.destination,ns.workspace_root,ns.language,ns.overwrite)
     elif ns.cmd=='validate-config': out=read_and_validate_user_config(ns.config_json)
-    elif ns.cmd=='prepare-job': out=prepare_job(json.loads(Path(ns.job_json).read_text(encoding='utf-8')),ns.workspace)
+    elif ns.cmd=='prepare-job': out=prepare_job(load_json(ns.job_json),ns.workspace)
     elif ns.cmd=='validate-decision':
-        decision=json.loads(Path(ns.decision_json).read_text(encoding='utf-8')); validate_decision(decision); out={'valid':True,'gaps':decision_gaps(decision)}
-    elif ns.cmd=='route-decision': out=route_decision(json.loads(Path(ns.decision_json).read_text(encoding='utf-8')))
+        decision=load_json(ns.decision_json); validate_decision(decision); out={'valid':True,'gaps':decision_gaps(decision)}
+    elif ns.cmd=='route-decision': out=route_decision(load_json(ns.decision_json))
     elif ns.cmd=='validate-capture-request':
-        req=json.loads(Path(ns.request_json).read_text(encoding='utf-8')); validate_capture_request(req); out={'valid':True,'gaps':capture_request_gaps(req)}
-    elif ns.cmd=='recommend-capture': out=recommend_capture(json.loads(Path(ns.request_json).read_text(encoding='utf-8')))
+        req=load_json(ns.request_json); validate_capture_request(req); out={'valid':True,'gaps':capture_request_gaps(req)}
+    elif ns.cmd=='recommend-capture': out=recommend_capture(load_json(ns.request_json))
     elif ns.cmd=='compare-masks': out=compare_mask_files(ns.mask_a,ns.mask_b)
     elif ns.cmd=='validate-background': out=validate_background(ns.image,ns.mask,ns.min_channel,ns.max_nonwhite_ratio)
     elif ns.cmd=='validate-output': out=validate_dimensions(ns.image,ns.width,ns.height,ns.format)

@@ -1,9 +1,13 @@
 from __future__ import annotations
+
 from pathlib import Path
 from typing import Any
+
 import numpy as np
-from PIL import Image, ImageChops
-from .masks import load_mask, compare_mask_files
+from PIL import Image
+
+from .masks import load_mask
+
 
 def validate_background(image_path: str | Path, mask_path: str | Path | None = None, min_channel: int = 250, max_nonwhite_ratio: float = 0.002, border_fraction: float = 0.06) -> dict[str, Any]:
     with Image.open(image_path) as img:

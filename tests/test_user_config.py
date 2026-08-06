@@ -1,7 +1,13 @@
-import json
 from pathlib import Path
+
 import pytest
-from ai_image_studio.user_config import default_user_config, validate_user_config, write_default_user_config, read_and_validate_user_config
+
+from ai_image_studio.user_config import (
+    default_user_config,
+    read_and_validate_user_config,
+    validate_user_config,
+    write_default_user_config,
+)
 
 
 def test_default_config_is_valid():

@@ -1,7 +1,9 @@
 from pathlib import Path
-import json
+
 from PIL import Image
+
 from ai_image_studio.jobs import prepare_job, transition
+
 
 def test_prepare_strict_job(tmp_path):
     src=tmp_path/'source.jpg'; Image.new('RGB',(10,10),'white').save(src)

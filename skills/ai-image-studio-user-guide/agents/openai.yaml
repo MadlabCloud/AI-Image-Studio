@@ -1,6 +1,7 @@
 interface:
   display_name: "AI Image Studio — Guía"
   short_description: "Instalación, configuración y uso seguro"
+  brand_color: "#1F4E79"
   default_prompt: "Ayúdame a instalar o usar AI Image Studio en mi plataforma."
 policy:
   allow_implicit_invocation: true

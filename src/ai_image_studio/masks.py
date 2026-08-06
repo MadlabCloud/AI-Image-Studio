@@ -1,8 +1,11 @@
 from __future__ import annotations
-from pathlib import Path
+
 from collections import deque
+from pathlib import Path
+
 import numpy as np
 from PIL import Image
+
 
 def load_mask(path: str | Path) -> np.ndarray:
     with Image.open(path) as img:

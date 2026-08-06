@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from importlib.resources import files
 import json
+from importlib.resources import files
+
 from jsonschema import Draft202012Validator
 
 PRODUCT_ENV_DESTINATIONS = {

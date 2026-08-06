@@ -1,8 +1,8 @@
-from pathlib import Path
 import hashlib
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -78,3 +78,27 @@ def test_release_assets_and_private_media_are_ignored(relative):
 @pytest.mark.parametrize("relative", ALLOWED_EXAMPLES)
 def test_project_files_are_not_ignored(relative):
     assert not _is_ignored(relative), f"{relative} no deberia estar excluido"
+
+
+# ------------------------------------------------------- esquemas duplicados
+# `schemas/` es la copia visible del repositorio y `src/ai_image_studio/schemas/` la
+# que carga el codigo (`files("ai_image_studio").joinpath("schemas/...")`). Nada
+# mantiene las dos sincronizadas: editar la de la raiz no cambia la validacion, y el
+# error es silencioso. Hasta unificarlas, esta prueba impide que diverjan.
+PUBLIC_SCHEMAS = ROOT / "schemas"
+PACKAGE_SCHEMAS = ROOT / "src/ai_image_studio/schemas"
+SCHEMA_NAMES = sorted(p.name for p in PACKAGE_SCHEMAS.glob("*.json"))
+
+
+def test_both_schema_directories_hold_the_same_files():
+    assert sorted(p.name for p in PUBLIC_SCHEMAS.glob("*.json")) == SCHEMA_NAMES
+
+
+@pytest.mark.parametrize("name", SCHEMA_NAMES)
+def test_the_public_schema_matches_the_one_the_code_loads(name):
+    publico = (PUBLIC_SCHEMAS / name).read_bytes().replace(b"\r\n", b"\n")
+    paquete = (PACKAGE_SCHEMAS / name).read_bytes().replace(b"\r\n", b"\n")
+    assert publico == paquete, (
+        f"schemas/{name} y src/ai_image_studio/schemas/{name} han divergido. "
+        "El codigo solo carga la segunda: la primera quedaria como documentacion falsa."
+    )

@@ -317,6 +317,30 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import build_distributions as bd  # noqa: E402
 
 
+@pytest.mark.parametrize("label", sorted(ARTIFACTS))
+def test_entry_paths_leave_room_under_windows_max_path(built, label):
+    """Ningun ZIP puede acercarse al limite MAX_PATH de 260 caracteres.
+
+    El artefacto de Codex anida `plugins/ai-image-studio/skills/<skill>/references/...`
+    y es el unico que se acercaba al limite: con la raiz larga su entrada mayor medía
+    132 caracteres, y extraerlo bajo un directorio ya profundo fallaba con
+    [WinError 206]. Acortar la raiz a `ai-image-studio-codex` lo bajo a 120.
+
+    El presupuesto expresa una garantia concreta: con 128 caracteres de entrada, la
+    extraccion cabe en cualquier destino de hasta 132 caracteres sin activar rutas
+    largas. Hoy sobran 8; si un archivo nuevo se los come, esta prueba lo dice antes
+    de publicar en vez de que lo descubra un usuario de Windows.
+    """
+    PRESUPUESTO = 128
+    raiz = built[label]
+    entradas = [p.relative_to(raiz.parent).as_posix() for p in raiz.rglob("*") if p.is_file()]
+    mas_larga = max(entradas, key=len)
+    assert len(mas_larga) <= PRESUPUESTO, (
+        f"la entrada mas larga de '{label}' mide {len(mas_larga)} caracteres "
+        f"(presupuesto {PRESUPUESTO}): {mas_larga}"
+    )
+
+
 def test_reset_directory_removes_read_only_leftovers(tmp_path):
     stage = tmp_path / "stage"
     (stage / "sub").mkdir(parents=True)

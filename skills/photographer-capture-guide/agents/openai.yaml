@@ -1,0 +1,7 @@
+interface:
+  display_name: "Photographer Capture Guide"
+  short_description: "Plan de captura antes de disparar"
+  brand_color: "#1F4E79"
+  default_prompt: "Dime cómo preparar la cámara, la luz y las tomas para esta sesión."
+policy:
+  allow_implicit_invocation: true

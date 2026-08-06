@@ -1,7 +1,8 @@
 from __future__ import annotations
+
+import re
 from hashlib import sha256
 from pathlib import Path
-import re
 
 _SAFE = re.compile(r"[^a-zA-Z0-9._-]+")
 

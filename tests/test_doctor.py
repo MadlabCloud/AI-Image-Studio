@@ -3,8 +3,12 @@ import importlib.util
 import pytest
 
 from ai_image_studio import doctor as doctor_module
-from ai_image_studio.doctor import MCP_CHECK_NAME, MCP_STATES, mcp_capability, system_doctor
-
+from ai_image_studio.doctor import (
+    MCP_CHECK_NAME,
+    MCP_STATES,
+    mcp_capability,
+    system_doctor,
+)
 
 _FASTMCP_SKIP_REASON = "requiere un mcp funcional (mcp>=1.14,<2) instalado"
 

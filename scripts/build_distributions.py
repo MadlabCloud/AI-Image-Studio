@@ -321,7 +321,12 @@ def build_codex_marketplace() -> None:
     finish(
         stage,
         f"ai-image-studio-codex-marketplace-{VERSION}.zip",
-        "ai-image-studio-codex-marketplace",
+        # El directorio raiz se acorta a proposito. Este artefacto anida
+        # `plugins/ai-image-studio/skills/<skill>/references/...` y era el unico que
+        # se acercaba al limite MAX_PATH de 260 caracteres de Windows: con
+        # `ai-image-studio-codex-marketplace` la entrada mas larga medía 132.
+        # El nombre del ZIP no cambia.
+        "ai-image-studio-codex",
         "codex-marketplace",
     )
 

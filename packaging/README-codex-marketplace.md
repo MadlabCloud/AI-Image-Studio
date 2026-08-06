@@ -18,7 +18,7 @@ skills para Codex. Si necesitas los comandos `ai-image-studio ...`, usa el paque
 
 ## Contenido real
 
-Al extraer el ZIP obtienes un directorio `ai-image-studio-codex-marketplace/` con:
+Al extraer el ZIP obtienes un directorio `ai-image-studio-codex/` con:
 
 | Ruta | Contenido |
 |---|---|
@@ -60,22 +60,23 @@ Compara el resultado con la línea correspondiente de `SHA256SUMS.txt`.
 
 ```bash
 unzip ai-image-studio-codex-marketplace-<versión>.zip
-codex plugin marketplace add ./ai-image-studio-codex-marketplace
+codex plugin marketplace add ./ai-image-studio-codex
 codex plugin add ai-image-studio@ai-image-studio-marketplace
 ```
 
 En Windows (PowerShell), extrae con
 `Expand-Archive .\ai-image-studio-codex-marketplace-<versión>.zip -DestinationPath .`
-y usa la ruta `.\ai-image-studio-codex-marketplace`.
+y usa la ruta `.\ai-image-studio-codex`.
 
 > Mantén el directorio extraído mientras el plugin esté instalado: el marketplace
 > declara una fuente local que apunta a esa ruta.
 
-> **Windows: extrae en una ruta corta.** La entrada más larga de este ZIP mide 132
-> caracteres. Con el límite clásico `MAX_PATH` de 260 caracteres (activo salvo que
-> `HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem\LongPathsEnabled` valga 1), la
-> extracción falla con `[WinError 206]` si el directorio de destino ya es profundo.
-> `C:\Users\<tu-usuario>\Downloads` o cualquier ruta similar deja margen de sobra.
+> **Windows y rutas largas.** Este artefacto anida más que los otros tres, así que su
+> directorio raíz es `ai-image-studio-codex/`, más corto que el nombre del ZIP, para
+> dejar margen frente al límite clásico `MAX_PATH` de 260 caracteres (activo salvo que
+> `HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem\LongPathsEnabled` valga 1). Aun
+> así, extráelo en una ruta razonable: en un destino ya muy profundo, cualquier ZIP
+> puede fallar con `[WinError 206]`.
 
 ## Validación
 
@@ -92,7 +93,7 @@ comprueba que su estado es instalado o habilitado y que expone las seis skills.
 Validación sin depender del CLI, útil para automatización:
 
 ```bash
-python -c "import json;d=json.load(open('ai-image-studio-codex-marketplace/.agents/plugins/marketplace.json'));print(d['plugins'][0]['source'])"
+python -c "import json;d=json.load(open('ai-image-studio-codex/.agents/plugins/marketplace.json'));print(d['plugins'][0]['source'])"
 ```
 
 Debe imprimir `{'source': 'local', 'path': './plugins/ai-image-studio'}` y esa ruta
@@ -126,7 +127,7 @@ Borra por último el directorio extraído.
 Para probar sin tocar tu configuración real, aísla el entorno con `CODEX_HOME`:
 
 ```bash
-CODEX_HOME=/tmp/codex-prueba codex plugin marketplace add ./ai-image-studio-codex-marketplace
+CODEX_HOME=/tmp/codex-prueba codex plugin marketplace add ./ai-image-studio-codex
 ```
 
 Al terminar basta con borrar `/tmp/codex-prueba`.
