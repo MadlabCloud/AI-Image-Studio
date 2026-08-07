@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.6.0 - 2026-08-06
+
+Primera versión que amplía una capacidad del núcleo, no solo la distribución.
+
+### Añadido
+
+- **`compare_pixels` mide también en local.** Devuelve ahora `max_absolute_error`,
+  `changed_pixel_ratio` y un bloque `local` con el peor cuadrante y cuántos superan el
+  umbral. Las claves anteriores no cambian.
+
+  Encontrado probando el flujo con una fotografía de cámara real: se borró una franja de
+  producto —el equivalente a una pata perdida por el matting— y las métricas globales la
+  dieron por buena, con `mae` 0,81 y `p95_absolute_error` **0,0**. Cualquier umbral basado
+  en ellas habría aprobado un producto amputado, porque el daño afectaba al 1,2 % de los
+  píxeles y la media lo diluía. Sobre esa misma imagen, las métricas locales dan un peor
+  bloque de 121,5 y 24 bloques por encima de 10.
+
+  Además distinguen el tipo de daño: pocos bloques con error altísimo indican una
+  amputación o un hueco; casi todos los bloques con error moderado, un recoloreado.
+
+  Con máscara, la medición local se limita al producto, de modo que una diferencia
+  legítima de fondo no contamina el peor bloque.
+
+- La skill `image-quality-gates` y la herramienta MCP explican cómo leer estas métricas.
+  El principio de la skill no cambia: ninguna métrica por sí sola es una puerta.
+
 ## 0.5.2 - 2026-08-06
 
 Corrige el último punto que impedía reproducir desde el código los artefactos publicados.

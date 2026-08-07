@@ -33,7 +33,12 @@ metadata:
    `scripts/validate_background.py`.
 3. Ejecuta `image_compare_masks` si hay dos máscaras. Sin MCP, usa
    `scripts/compare_masks.py`.
-4. Ejecuta `image_compare_pixels` solo sobre imágenes alineadas; no interpretes MAE/RMSE como prueba suficiente.
+4. Ejecuta `image_compare_pixels` solo sobre imágenes alineadas. **Las medias globales
+   no son una puerta**: un defecto pequeño en área pero destructivo se diluye en ellas.
+   Lee `max_absolute_error`, `changed_pixel_ratio` y el bloque `local`:
+   - pocos bloques con error muy alto → daño localizado: pieza amputada, hueco, halo;
+   - casi todos los bloques con error moderado → daño global: recoloreado o cambio de tono;
+   - `max_absolute_error` alto con `mae` casi cero → mira dónde antes de aprobar nada.
 5. Ejecuta `image_validate_output`.
 6. Realiza una revisión visual adversarial: busca motivos para rechazar.
 7. Genera un informe conforme al esquema `qc-report.schema.json`.
